@@ -1,0 +1,159 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Rider {
+  id        Int     @id @default(autoincrement())
+  name      String
+  nameKey   String  @map("name_key")
+  nation    String
+  teamKey   String  @map("team_key")
+  age       Int
+  price2025 Int     @map("price_2025")
+  score2025 Int     @map("score_2025")
+  score2024 Int     @map("score_2024")
+  type      Boolean
+  results  RaceResult[]
+  draftTeamRiders DraftTeamRiders[]
+
+  @@map("rider")
+}
+
+model DraftTeam {
+  id              Int               @id @default(autoincrement())
+  name            String
+  type            Boolean
+  year            String
+  user            User              @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId          String            @map("user_id")
+  draftTeamRiders DraftTeamRiders[]
+  locked          Boolean           @default(false)
+  score2025       Int               @default(0)
+
+  @@map("draft_team")
+}
+
+model DraftTeamRiders {
+  id        Int       @id @default(autoincrement())
+  riderId   Int       @map("rider_id")
+  userId    String    @map("user_id")
+  draftTeam DraftTeam @relation(fields: [teamId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  teamId    Int       @map("team_id")
+  rider    Rider  @relation(fields: [riderId], references: [id])
+
+  @@map("draft_team_riders")
+
+  @@unique([riderId, userId, teamId])
+}
+
+model Race {
+  id         Int          @id @default(autoincrement())
+  name       String
+  nameKey    String       @map("name_key")
+  nation     String
+  date       DateTime
+  type       Boolean
+  category   String
+  raceResult RaceResult[]
+
+  @@map("race")
+}
+
+model RaceResult {
+  id       Int  @id @default(autoincrement())
+  riderId  Int  @map("rider_id")
+  title    String
+  sequence Int @default(0)
+  points   Int
+  race     Race @relation(fields: [raceId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  raceId   Int  @map("race_id")
+  rider    Rider  @relation(fields: [riderId], references: [id])
+
+  @@map("race_result")
+  @@unique([raceId, sequence])
+
+
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  emailVerified DateTime?
+  image         String?
+  admin         Boolean         @default(false)
+  accounts      Account[]
+  sessions      Session[]
+  // Optional for WebAuthn support
+  Authenticator Authenticator[]
+
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  DraftTeam DraftTeam[]
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+// Optional for WebAuthn support
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+}

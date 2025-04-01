@@ -1,0 +1,26 @@
+docker pull docker.repo1.uhc.com/postgres:12
+docker pull docker.repo1.uhc.com/keycloak/keycloak:26.1.3
+
+container name: keycloak
+command: start-dev
+port 8080: 8081
+KC_BOOTSTRAP_ADMIN_USERNAME=admin
+KC_BOOTSTRAP_ADMIN_PASSWORd=admin
+create realm test
+create user
+  jon
+  jon@test.com
+  Jon
+  Stewart
+set password
+create client pdcvds
+check authorization + authentication
+root url: http://localhost:3000
+callback: /api/auth/callback/keycloak
+get client_secret from credentials
+
+container name: postgres
+POSTGRES_PASSWORD=pgpassword
+npx prisma migrate dev --name
+npx prisma generate
+npx prisma db seed
