@@ -5,7 +5,7 @@ container name: keycloak
 command: start-dev
 port 8080: 8081
 KC_BOOTSTRAP_ADMIN_USERNAME=admin
-KC_BOOTSTRAP_ADMIN_PASSWORd=admin
+KC_BOOTSTRAP_ADMIN_PASSWORD=admin
 create realm test
 create user
   jon
