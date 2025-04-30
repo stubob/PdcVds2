@@ -7,53 +7,55 @@ import {
   GridRowId,
   GridRowModes,
   GridRowModesModel,
+  useGridApiRef,
 } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
-import CalendarCell from "../../components/CalenderCell";
 import { countries, findFlagUrlByCountryName } from "country-flags-svg";
 import Image from "next/image";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import SaveIcon from "@mui/icons-material/Save";
-import { useSessionContext } from "../../contextprovider";
+import { useSessionContext } from "../../../contextprovider";
+import CalendarCell from "../../../components/CalenderCell";
+import { deleteRace, updateRace } from "../../../prisma-queries";
+import { Race } from "@prisma/client";
+import { Save } from "@mui/icons-material";
 
-interface CalendarPageProps {
-  isWomen: boolean;
-  editable: boolean;
+interface AdminCalendarTableProps {
+  calendarData: any[];
 }
 
-export default function CalendarTable({
-  isWomen,
-  editable,
-}: CalendarPageProps) {
-  const [rows, setRows] = useState([]);
+export default function AdminCalendarTable({calendarData}: AdminCalendarTableProps) {
+  const [rows, setRows] = useState<Race[]>([]);
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
-  const { session, riderData, calendarData } = useSessionContext();
-  const [riders, setRiders] = useState([]);
+  const { isWomen } = useSessionContext();
+  const apiRef = useGridApiRef();
 
   useEffect(() => {
     const fetchData = async () => {
-      if(!session) return;
       const data = calendarData
         .filter((event) => event.type === isWomen)
         .map((event) => ({
           ...event,
-          winner: event.raceResult?.[0]?.rider.name || '',
+          winner: event.raceResult?.[0]?.rider.name || "",
         }));
       setRows(data);
-
-      const filteredRiders = riderData.filter((rider) => rider.type === isWomen);
-      setRiders(filteredRiders.map((rider: any) => ({ id: rider.id, name: rider.name })));
     };
 
     fetchData();
-  }, [isWomen, session, riderData, calendarData]);
+  }, [isWomen, calendarData]);
 
   const handleSaveClick = (id: GridRowId) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
-  };
+    const row = apiRef.current.getRow(id);
+    if (row) {
+      updateRace(row);
+      const updatedRow = { ...row, _action: "update" };
+      apiRef.current.updateRows([updatedRow]);
+      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    }
+  }
 
   const handleDeleteClick = (id: GridRowId) => () => {
-    setRows(rows.filter((row) => row.id !== id));
+    deleteRace(id as number);
+    apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
   };
 
   const columns: GridColDef[] = [
@@ -61,20 +63,18 @@ export default function CalendarTable({
       field: "date",
       headerName: "Date",
       type: "date",
-      width: 100,
-      editable: editable,
+      editable: true,
       valueGetter: (params) => {
         return new Date(params);
       },
     },
-    { field: "name", headerName: "Name", width: 500, editable: editable },
+    { field: "name", headerName: "Name", editable: true },
     {
       field: "nation",
       headerName: "Nation",
-      width: 100,
-      editable: editable,
-      type: editable ? "singleSelect" : "string",
-      valueOptions: editable ? countries.map((country) => country.name) : undefined,
+      editable: true,
+      type: "singleSelect",
+      valueOptions: countries.map((country) => country.name),
       renderCell: (params) => (
         <div style={{ display: "flex", alignItems: "center" }}>
           <Image
@@ -91,8 +91,7 @@ export default function CalendarTable({
     {
       field: "category",
       headerName: "Category",
-      width: 150,
-      editable: editable,
+      editable: true,
       type: "singleSelect",
       valueOptions: [
         "Grand Tour-Stage",
@@ -114,32 +113,29 @@ export default function CalendarTable({
     {
       field: "results",
       headerName: "Results",
-      width: 150,
       editable: false,
-      renderCell: (params) => <CalendarCell {...params} urlBase={editable ? "/admin/admin-calendar" : "/results"} />,
+      renderCell: (params) => (
+        <CalendarCell {...params} urlBase={"/admin/admin-calendar"} />
+      ),
       sortable: false,
       filterable: false,
-  }
-
-  ];
-  if (editable) {
-    columns.push({
+    },
+    {
       field: "actions",
       type: "actions",
       headerName: "Actions",
-      width: 100,
       cellClassName: "actions",
       getActions: ({ id }) => {
         return [
           <GridActionsCellItem
-            icon={<SaveIcon />}
+            key={id}
+            icon={<Save/>}
             label="Save"
-            sx={{
-              color: "primary.main",
-            }}
+            color="inherit"
             onClick={handleSaveClick(id)}
-          />,
+            />,
           <GridActionsCellItem
+            key={id}
             icon={<DeleteIcon />}
             label="Delete"
             onClick={handleDeleteClick(id)}
@@ -147,18 +143,26 @@ export default function CalendarTable({
           />,
         ];
       },
-    });
-  }else{
-    columns.push(
-      {
-        field: "winner",
-        headerName: "Winner",
-        width: 150,
-        editable: false,
-        type: "string",
-      }
-    )
-  }
+    },
+  ];
+
+  // const fetchCalendarData = async () => {
+  //   try {
+  //     const updatedData = await getCalendarData(); // Replace with your actual API call
+  //     apiRef.current.setRows(updatedData); // Update the rows in the DataGrid
+  //     console.log("Calendar data successfully reloaded.");
+  //   } catch (error) {
+  //     console.error("Error fetching calendar data:", error);
+  //   }
+  // };
+
+
+  const autosizeOptions = {
+    includeHeaders: true,
+    includeOutliers: true,
+    expand: true,
+  };
+
 
   return (
     <main>
@@ -178,6 +182,10 @@ export default function CalendarTable({
         pageSizeOptions={[10]}
         disableRowSelectionOnClick
         disableColumnSelector={true}
+        autosizeOnMount={true}
+        autosizeOptions={autosizeOptions}
+        apiRef={apiRef}
+        //processRowUpdate={processRowUpdate}
       />
     </main>
   );

@@ -46,7 +46,7 @@ palette: {
     // paper: '#112E4D',
   },
   background: {
-    main: '#091375',
+    default: '#091375',
   },
 },
 

@@ -1,31 +1,39 @@
 "use client";
 import React from 'react';
 import { Autocomplete, TextField } from '@mui/material';
+import { Rider } from '@prisma/client';
 
 interface RiderSelectProps {
-    riderData: { label: string, value: string }[];
-    defaultValue?: { label: string, value: string } | null;
-    onChange: (selectedRider: { label: string, value: string }) => void;
+    riderData: Rider[];
+    defaultValue?: Rider | null;
+    onChange: (selectedRider: Rider) => void;
 }
 
 const RiderSelect: React.FC<RiderSelectProps> = ({ riderData, defaultValue, onChange }) => {
-    const handleChange = (event: any, value: { label: string, value: string } | null) => {
-        if (value) {
-            onChange(value);
-        }
+    const [value, setValue] = React.useState<Rider | null>(defaultValue || null);
+
+    const handleChange = (event: React.SyntheticEvent, newValue: Rider | null) => {
+      setValue(newValue); // Update the selected value
+      onChange(newValue as Rider); // Call the onChange prop with the new value
     };
 
     return (
         <Autocomplete
-            fullWidth={true}
-            options={riderData}
-            getOptionLabel={(option) => option.label}
-            defaultValue={defaultValue || null}
-            value={defaultValue || null}
-            onChange={handleChange}
-            renderInput={(params) => <TextField {...params} variant="outlined" fullWidth={true} />}
+          fullWidth
+          options={riderData}
+          getOptionLabel={(option) => option.name || ""}
+          value={value}
+          onChange={handleChange}
+          renderInput={(params) => (
+            <TextField {...params} variant="outlined" fullWidth />
+          )}
+          filterOptions={(options, { inputValue }) =>
+            options.filter((option) =>
+              option.name.toLowerCase().includes(inputValue.toLowerCase())
+            )
+          }
         />
-    );
-};
+      );
+    };
 
 export default RiderSelect;

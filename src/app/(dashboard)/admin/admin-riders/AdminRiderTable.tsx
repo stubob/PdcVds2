@@ -4,36 +4,59 @@ import React, { useEffect, useState } from "react";
 import {
   DataGrid,
   GRID_CHECKBOX_SELECTION_COL_DEF,
+  GridActionsCellItem,
   GridColDef,
+  GridRowId,
+  GridRowModes,
+  GridRowModesModel,
+  useGridApiRef,
 } from "@mui/x-data-grid";
-import Grid from "@mui/material/Grid2";
-import { findFlagUrlByIso3Code } from "country-flags-svg";
+import { countries, findFlagUrlByIso3Code } from "country-flags-svg";
 import Image from "next/image";
 import { useSessionContext } from "../../../contextprovider";
+import { deleteRider, updateRider } from "../../../prisma-queries";
+import DeleteIcon from "@mui/icons-material/DeleteOutlined";
+import SaveIcon from "@mui/icons-material/Save";
+import { Rider } from "@prisma/client";
 
 interface RiderPageProps {
-  isWomen: boolean;
+  mensRiderData: Rider[];
+  womensRiderData: Rider[];
 }
 
-export default function RiderPage({ isWomen }: RiderPageProps) {
-  const { riderData } = useSessionContext();
-  const [rows, setRows] = useState([]);
-  const [team, setTeam] = useState({
-    name: "",
-    draftTeamRiders: [],
-    id: Number,
-    year: "",
-  });
-  const [selectionModel, setSelectionModel] = useState([]);
-  const [teamName, setTeamName] = useState("");
+export default function RiderPage({
+  mensRiderData,
+  womensRiderData,
+}: RiderPageProps) {
+  const [rows, setRows] = useState<Rider[]>([]);
+  const { isWomen } = useSessionContext();
+  const riderData: Rider[] = isWomen ? womensRiderData : mensRiderData;
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+  const apiRef = useGridApiRef();
 
+  const handleSaveClick = (id: GridRowId) => () => {
+    const row = apiRef.current.getRow(id);
+    if (row) {
+      updateRider(row);
+      const updatedRow = { ...row, _action: "update" };
+      apiRef.current.updateRows([updatedRow]);
+      setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    }
+  }
+
+  const handleDeleteClick = (id: GridRowId) => () => {
+    deleteRider(id as number);
+    apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
+  };
   const columns: GridColDef[] = [
     { ...GRID_CHECKBOX_SELECTION_COL_DEF, headerClassName: "header-checkbox" },
-    { field: "name", headerName: "Name", width: 500, editable: true },
+    { field: "name", headerName: "Name", editable: true },
     {
       field: "nation",
       headerName: "Nation",
       editable: true,
+      type: "singleSelect",
+      valueOptions: countries.map((country) => country.iso3),
       renderCell: (params) => (
         <div style={{ display: "flex", alignItems: "center" }}>
           <Image
@@ -47,7 +70,7 @@ export default function RiderPage({ isWomen }: RiderPageProps) {
         </div>
       ),
     },
-    { field: "teamKey", headerName: "Team", width: 200, editable: true },
+    { field: "teamKey", headerName: "Team",editable: true },
     {
       field: "age",
       headerName: "Age",
@@ -66,41 +89,69 @@ export default function RiderPage({ isWomen }: RiderPageProps) {
       type: "number",
       editable: true,
     },
+    {
+      field: "actions",
+      type: "actions",
+      headerName: "Actions",
+      cellClassName: "actions",
+      getActions: ({ id }) => {
+        return [
+          <GridActionsCellItem
+            key={id}
+            icon={<SaveIcon />}
+            label="Save"
+            sx={{
+              color: "primary.main",
+            }}
+            onClick={handleSaveClick(id)}
+          />,
+          <GridActionsCellItem
+            key={id}
+            icon={<DeleteIcon />}
+            label="Delete"
+            onClick={handleDeleteClick(id)}
+            color="inherit"
+          />,
+        ];
+      },
+    },
   ];
-  
+
   useEffect(() => {
     const fetchData = async () => {
-      if(riderData){
-        const filteredData = riderData.filter((rider) => rider.type === isWomen);
-        setRows(filteredData);
+      if (riderData) {
+        setRows(riderData);
       }
     };
     fetchData();
-  }, [isWomen, riderData]);
+  }, [riderData]);
+
+  const autosizeOptions = {
+    includeHeaders: true,
+    includeOutliers: true,
+    expand: true,
+  };
 
   return (
     <main>
-      <Grid container spacing={2}>
-        <Grid size={12}>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            initialState={{
-              pagination: {
-                paginationModel: {
-                  pageSize: 10,
-                },
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 10,
               },
-            }}
-            rowHeight={25}
-            keepNonExistentRowsSelected
-            pageSizeOptions={[10]}
-            disableRowSelectionOnClick
-            rowSelectionModel={selectionModel}
-            disableColumnSelector={true}
-            />
-        </Grid>
-      </Grid>
+            },
+          }}
+          rowHeight={25}
+          pageSizeOptions={[10]}
+          disableRowSelectionOnClick
+          disableColumnSelector={true}
+          autosizeOnMount={true}
+          autosizeOptions={autosizeOptions}
+          apiRef={apiRef}
+        />
     </main>
   );
 }

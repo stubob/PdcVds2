@@ -7,8 +7,9 @@ import type { Provider } from 'next-auth/providers';
 import Keycloak from 'next-auth/providers/keycloak';
 import { prisma } from './prisma';
 import { getUser } from './app/prisma-queries';
+import { revalidateTag } from 'next/cache';
 
-const providers: Provider[] = [
+export const providers: Provider[] = [
   Google({
     clientId: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -22,24 +23,6 @@ const providers: Provider[] = [
     clientSecret: process.env.APPLE_CLIENT_SECRET,
   }),
   Keycloak({}),
-
-  Credentials({
-    credentials: {
-      email: { label: 'Email Address', type: 'email' },
-      password: { label: 'Password', type: 'password' },
-    },
-    async authorize(c) {
-      if (!c.email || c.password !== 'password') {
-        return null;
-      }
-      console.log('Credentials', c);
-      return {
-        id: 'test',
-        name: 'Test User',
-        email: String(c.email),
-      };
-    },
-  }),
 ];
 
 export const providerMap = providers.map((provider) => {
@@ -62,6 +45,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async signIn({ user }) {
         try {
           console.log('User signed in:', user);
+          if (!user.email) {
+            console.error('User email is missing');
+            return false; // Prevent sign-in if email is missing
+          }
           // Save user to the database
           let dbuser = await getUser(user.email);
           if(!dbuser) {
@@ -72,6 +59,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               },
             });
           }
+          revalidateTag('auth');
           console.log('User saved to database');
         } catch (error) {
           console.error('Error saving user to database:', error);

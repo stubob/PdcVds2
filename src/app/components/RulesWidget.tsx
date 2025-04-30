@@ -1,4 +1,4 @@
-import { Check, Error, InboxOutlined } from "@mui/icons-material";
+import { Check, Error } from "@mui/icons-material";
 import {
   Button,
   List,
@@ -10,8 +10,9 @@ import {
 } from "@mui/material";
 import { Stack } from "@mui/system";
 import { useEffect, useState } from "react";
-import { lockDraftTeam } from "../../prisma-queries";
+import { lockDraftTeam } from "../prisma-queries";
 import { useSession } from "next-auth/react";
+import { Rider } from "@prisma/client";
 
 interface RulesWidgetProps {
   isWomen: boolean;
@@ -20,35 +21,35 @@ interface RulesWidgetProps {
 
 export default function RulesWidget({ isWomen, team }: RulesWidgetProps) {
     const { data: session } = useSession();
-    const [numRiders, setNumRiders] = useState(false);
-    const [total, setTotal] = useState(false);
-    const [totalPrice, setTotalPrice] = useState(false);
-    const [restricted, setRestricted] = useState(false);
-    const [doubleRestricted, setDoubleRestricted] = useState(false);
-    const [checkValid, setCheckValid] = useState(false);
+    const [numRiders, setNumRiders] = useState<boolean>(false);
+    const [total, setTotal] = useState<boolean>(false);
+    const [totalPrice, setTotalPrice] = useState<number>(0);
+    const [restricted, setRestricted] = useState<boolean>(false);
+    const [doubleRestricted, setDoubleRestricted] = useState<boolean>(false);
+    const [checkValid, setCheckValid] = useState<boolean>(false);
   
   useEffect(() => {
     setTotalPrice(team.draftTeamRiders.reduce(
-        (total, rider) => total + rider.price2025,
+        (total: number, rider: Rider) => total + rider.price2025,
         0
       ));
     if (isWomen) {
       setNumRiders(team.draftTeamRiders.length != 15);
       setTotal(totalPrice > 150);
       setDoubleRestricted(
-        team.draftTeamRiders.filter((rider) => rider.price2025 >= 24).length > 1
+        team.draftTeamRiders.filter((rider: Rider) => rider.price2025 >= 24).length > 1
       );
       setRestricted(
-        team.draftTeamRiders.filter((rider) => rider.price2025 >= 18).length > 3
+        team.draftTeamRiders.filter((rider: Rider) => rider.price2025 >= 18).length > 3
       );
     } else {
       setNumRiders(team.draftTeamRiders.length != 25);
       setTotal(totalPrice > 150);
       setDoubleRestricted(
-        team.draftTeamRiders.filter((rider) => rider.price2025 >= 24).length > 1
+        team.draftTeamRiders.filter((rider: Rider) => rider.price2025 >= 24).length > 1
       );
       setRestricted(
-        team.draftTeamRiders.filter((rider) => rider.price2025 >= 18).length > 3
+        team.draftTeamRiders.filter((rider: Rider) => rider.price2025 >= 18).length > 3
       );
       setCheckValid(numRiders && total && restricted && doubleRestricted);
     }
@@ -58,9 +59,9 @@ export default function RulesWidget({ isWomen, team }: RulesWidgetProps) {
     const confirmed = window.confirm(
       "Are you sure? You will not be able to change your team after submitting."
     );
-    if (confirmed) {
+    if (confirmed && session?.user?.id) {
       // Add logic to submit a team
-      lockDraftTeam(session?.user, team);
+      lockDraftTeam(session.user.id, team);
     }
   };
 

@@ -1,16 +1,13 @@
-"use client";
-
 import * as React from "react";
-import Paper from "@mui/material/Paper";
-import CalendarTable from "./CalendarTable";
-import { useSessionContext } from "../../contextprovider";
+import CalendarTable from "../../components/CalendarTable";
+import { getCalendarData } from "../../datalayer";
 
-export default function CalendarPage() {
-  const { isWomen } = useSessionContext();
+export default async function CalendarPage() {
+  const calendarData = await getCalendarData();
 
   return (
     <main>
-        <CalendarTable editable={false} isWomen={isWomen} />
+        <CalendarTable calendarData={calendarData}/>
     </main>
   );
 }

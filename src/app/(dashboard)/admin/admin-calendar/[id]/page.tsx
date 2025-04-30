@@ -1,31 +1,48 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { getRaceResult, getRace } from "../../../../prisma-queries";
-import { Race, RaceResult } from "@prisma/client";
 import RaceResultTable from "./RaceResultTable";
+import { headers } from "next/headers";
+import { getMensRiders, getRaceById, getRaceResultById, getWomensRiders } from "../../../../datalayer";
 
-export default function RaceAdminPage() {
-    const [rows, setRows] = useState<RaceResult[]>([]);
-    const [metadata, setMetadata] = useState<Race>();
+export default async function RaceAdminPage() {
+    const headerList = await headers();
+    const pathname = headerList.get("x-current-path") ?? '';
+    const id = parseInt(pathname[pathname.length - 1], 10); // Get the last part of the pathname and convert to number
 
-      useEffect(() => {
-        const fetchData = async () => {
-          const pathSegments = window.location.pathname.split('/');
-          const id = pathSegments[pathSegments.length - 1]; // Get the last part of the pathname
-          if (id) {
-            const data = await getRaceResult(Number(id));
-            setRows(data);
-            const metadata = await getRace(Number(id));
-            setMetadata(metadata);
-          }
-        };
-        fetchData();
-      }, []); // Empty dependency array ensures this runs only once
+    const dataPromise = getRaceResultById(Number(id));
+    const metadataPromise = getRaceById(Number(id));
+    const mensRiderDataPromise = getMensRiders();
+    const womensRiderDataPromise = getWomensRiders();
+    
+    const [data, metadata, mensRiderData, womensRiderData] = await Promise.all([
+        dataPromise,
+        metadataPromise,
+        mensRiderDataPromise,
+        womensRiderDataPromise,
+    ]);
+
+    // Handle null or undefined data
+    const raceData = data ?? []; // Default to an empty array if data is null
+
+    // Provide a proper fallback for metadata
+    const raceMetadata = metadata ?? {
+        name: "Unknown Race",
+        id: 0,
+        nameKey: "unknown",
+        nation: "Unknown",
+        type: false,
+        date: new Date(),
+        category: "Unknown",
+    };
+    const mensRiderDataSafe = mensRiderData ?? []; // Default to an empty array if mensRiderData is null
+    const womensRiderDataSafe = womensRiderData ?? []; // Default to an empty array if womensRiderData is null
 
     return (
         <main>
-            <RaceResultTable isWomen={false} raceData={rows} metadata={metadata}/>
+            <RaceResultTable
+                raceData={raceData}
+                metadata={raceMetadata}
+                mensRiderData={mensRiderDataSafe}
+                womensRiderData={womensRiderDataSafe}
+            />
         </main>
     );
 }

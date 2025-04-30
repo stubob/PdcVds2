@@ -21,6 +21,8 @@ CREATE TABLE "draft_team" (
     "type" BOOLEAN NOT NULL,
     "year" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
+    "locked" BOOLEAN NOT NULL DEFAULT false,
+    "score2025" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "draft_team_pkey" PRIMARY KEY ("id")
 );
@@ -52,7 +54,9 @@ CREATE TABLE "race" (
 CREATE TABLE "race_result" (
     "id" SERIAL NOT NULL,
     "rider_id" INTEGER NOT NULL,
-    "position" INTEGER NOT NULL,
+    "title" TEXT NOT NULL,
+    "sequence" INTEGER NOT NULL DEFAULT 0,
+    "points" INTEGER NOT NULL,
     "race_id" INTEGER NOT NULL,
 
     CONSTRAINT "race_result_pkey" PRIMARY KEY ("id")
@@ -65,6 +69,7 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "emailVerified" TIMESTAMP(3),
     "image" TEXT,
+    "admin" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -123,6 +128,12 @@ CREATE TABLE "Authenticator" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "draft_team_riders_rider_id_user_id_team_id_key" ON "draft_team_riders"("rider_id", "user_id", "team_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "race_result_race_id_sequence_key" ON "race_result"("race_id", "sequence");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
@@ -138,7 +149,13 @@ ALTER TABLE "draft_team" ADD CONSTRAINT "draft_team_user_id_fkey" FOREIGN KEY ("
 ALTER TABLE "draft_team_riders" ADD CONSTRAINT "draft_team_riders_team_id_fkey" FOREIGN KEY ("team_id") REFERENCES "draft_team"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
+ALTER TABLE "draft_team_riders" ADD CONSTRAINT "draft_team_riders_rider_id_fkey" FOREIGN KEY ("rider_id") REFERENCES "rider"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "race_result" ADD CONSTRAINT "race_result_race_id_fkey" FOREIGN KEY ("race_id") REFERENCES "race"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE "race_result" ADD CONSTRAINT "race_result_rider_id_fkey" FOREIGN KEY ("rider_id") REFERENCES "rider"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

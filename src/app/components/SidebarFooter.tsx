@@ -48,6 +48,7 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({ mini }) => {
 
   return (
     <Stack direction="column" spacing={1} sx={{ alignItems: "center" }}>
+      <Typography variant="caption" sx={{ m: 1 }}>Ad Block</Typography>
       <Typography variant="caption" sx={{ m: 1 }}>Deadline: 2025-06-01</Typography>
       <Typography variant="caption" sx={{ m: 1 }}>Time remaining: {timeRemaining}</Typography>
 
