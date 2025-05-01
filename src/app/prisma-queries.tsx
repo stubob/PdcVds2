@@ -240,44 +240,113 @@ export async function getRace(raceId: number): Promise<Race | null> {
   return data;
 }
 
-export type RaceResultRider = {
-    id: number,
-    raceId: number,
-    title: string,
-    points: number,
-    riderName: string,
-    riderId: number,
-    sequence: number
+interface RaceResultTable extends RaceResult {
+  riderName: string;
 }
-export async function getRaceResult(raceId: number) {
-    const results = await prisma.raceResult.findMany({
-        where: {
-            raceId: raceId
+export async function getRaceResult(
+  raceId: number
+): Promise<RaceResultTable[] | null> {
+  console.log("db getRaceResult");
+  const results = await prisma.raceResult.findMany({
+    where: {
+      raceId: raceId,
+    },
+    orderBy: [
+      {
+        sequence: "asc",
+      },
+    ],
+    include: {
+      rider: {
+        select: {
+          name: true,
         },
-        orderBy: [
-            {
-                sequence: 'asc',
-            },
-        ],
+      },
+    },
+  });
+
+  return results.map((result) => ({
+    id: result.id,
+    title: result.title,
+    points: result.points,
+    riderName: result.rider.name,
+    riderId: result.riderId,
+    sequence: result.sequence,
+    raceId: result.raceId,
+  }));
+}
+
+export async function getRaceResultsByDraftTeam(
+  draftTeamId: number 
+): Promise<RaceResult[]> {
+  console.log("db getRaceResultsByDraftTeam");
+  const currentYear = new Date().getFullYear();
+  const startDate = new Date(`${currentYear}-01-01`);
+  const endDate = new Date(`${currentYear}-12-31`);
+  const teamData = await prisma.draftTeam.findUnique({
+    where: {
+      id: draftTeamId,
+      year: "2025",
+    },
+    include: {
+      draftTeamRiders: {
         include: {
-            rider: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        });
-      
-        return results.map(result => ({
-          id: result.id,
-          raceId: result.raceId,
-          title: result.title,
-          points: result.points,
-          riderName: result.rider.name,
-          riderId: result.riderId,
-            sequence: result.sequence,
-        }));
-    }
+          rider: true,
+        },
+      },
+    },
+  });
+  const riderIds = teamData?.draftTeamRiders.map((rider) => rider.rider.id);
+  const data = await prisma.raceResult.findMany({
+    where: {
+      race: {
+        date: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      rider: {
+        id: {
+          in: riderIds,
+        },
+      },
+    },
+    orderBy: [
+      {
+        sequence: "asc",
+      },
+    ],
+    include: {
+      rider: {
+        select: {
+          name: true,
+        },
+      },
+      race: {
+        select: {
+          name: true,
+          date: true,
+          nation: true,
+          category: true,
+        },
+      },
+    },
+  });
+
+  return data.map((result) => ({
+    id: result.id,
+    title: result.title,
+    points: result.points,
+    riderName: result.rider.name,
+    riderId: result.riderId,
+    sequence: result.sequence,
+    raceId: result.raceId,
+    raceName: result.race.name,
+    raceDate: result.race.date,
+    raceNation: result.race.nation,
+    raceCategory: result.race.category,
+  }));
+}
 
 export async function createRaceResult(data: {
   raceId: number;
