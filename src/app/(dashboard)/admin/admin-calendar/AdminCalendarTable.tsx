@@ -129,7 +129,7 @@ export default function AdminCalendarTable({calendarData}: AdminCalendarTablePro
         return [
           <GridActionsCellItem
             key={id}
-            icon={<Save/>}
+            icon={<SaveIcon />}
             label="Save"
             color="inherit"
             onClick={handleSaveClick(id)}

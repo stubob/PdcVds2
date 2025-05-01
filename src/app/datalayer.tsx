@@ -124,7 +124,7 @@ export const getMensRiders = unstable_cache(
   { revalidate: CACHE_REVALIDATION_TIME, tags: ["mensRiders"] }
 );
 
-export const getMensDraftTeam = async (session: Session) => {
+export const getMensDraftTeam = async (session: Session | null) => {
   if (session && session.id) {
 
   return unstable_cache(
@@ -137,7 +137,7 @@ export const getMensDraftTeam = async (session: Session) => {
 }
 };
 
-export const getWomensDraftTeam = async (session: Session) => {
+export const getWomensDraftTeam = async (session: Session | null) => {
   if (session && session.id) {
   return unstable_cache(
     async () => {

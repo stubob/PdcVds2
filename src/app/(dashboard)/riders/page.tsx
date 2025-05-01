@@ -6,11 +6,6 @@ import { Typography } from "@mui/material";
 export default async function RiderPage(){
   const authSession = await auth();
   const session = await fetchUserSession(authSession);
-  if (!session) {
-    return (
-      <Typography variant="h4" color="error">No session found</Typography>
-    );
-  }
   const mensTeamDataPromise = getMensDraftTeam(session);
   const womensTeamDataPromise = getWomensDraftTeam(session);
   const mensRidersPromise = getMensRiders();
