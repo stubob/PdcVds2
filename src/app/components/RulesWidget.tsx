@@ -53,7 +53,7 @@ export default function RulesWidget({ isWomen, team }: RulesWidgetProps) {
       );
       setCheckValid(numRiders && total && restricted && doubleRestricted);
     }
-  }, [team, isWomen]);
+  }, [team, isWomen, totalPrice, numRiders, total, restricted, doubleRestricted]);
 
   const handleSubmitTeam = async () => {
     const confirmed = window.confirm(

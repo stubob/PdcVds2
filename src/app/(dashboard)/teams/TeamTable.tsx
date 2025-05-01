@@ -19,7 +19,13 @@ export default function TeamTable({ mensRiders, womensRiders }: TeamTableProps) 
 
   useEffect(() => {
     if(mensRiders && womensRiders) {
-        setData(isWomen ? womensRiders : mensRiders);
+        const selectedData = isWomen ? womensRiders : mensRiders;
+        // Map data to include userName field
+        const transformedData = selectedData.map((team) => ({
+          ...team,
+          userName: team.user?.name || "Unknown", // Extract user.name or fallback to "Unknown"
+        }));
+        setData(transformedData);
     }
   }, [isWomen, mensRiders, womensRiders]);
   const columns: GridColDef[] = [
@@ -27,13 +33,25 @@ export default function TeamTable({ mensRiders, womensRiders }: TeamTableProps) 
     { field: "name", headerName: "Team Name", width: 500, editable: false, renderCell: (params) => <Link href={`/my-team/${params.row.id}`}>{params.value}</Link> },
     { field: "userName", headerName: "User Name", width: 500, editable: false },
     { field: "score2025", headerName: "Score", width: 100, editable: false },
-];    
+];
+
+const autosizeOptions = {
+  includeHeaders: true,
+  includeOutliers: true,
+  expand: true,
+};
 return (
     <main>
       <DataGrid
         rows={data}
         columns={columns}
-      />
+        rowHeight={25}
+        pageSizeOptions={[10]}
+        disableRowSelectionOnClick
+        disableColumnSelector={true}
+        autosizeOnMount={true}
+        autosizeOptions={autosizeOptions}
+    />
     </main>
   );
 }

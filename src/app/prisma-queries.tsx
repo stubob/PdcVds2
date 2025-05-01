@@ -33,7 +33,6 @@ const calendarAndResults = Prisma.validator<Prisma.RaceDefaultArgs>()({
 });
 export type RaceWithResults = Prisma.RaceGetPayload<typeof calendarAndResults>;
 export async function getCalendar(): Promise<RaceWithResults[]> {
-  console.log("db getCalendar");
   return getCalendarByDateRange(new Date("2025-01-01"), new Date("2025-12-31"));
 }
 
@@ -41,7 +40,6 @@ export async function getCalendarByDateRange(
   startDate: Date,
   endDate: Date
 ): Promise<RaceWithResults[]> {
-  console.log("db getCalendarByDateRange");
   const data = await prisma.race.findMany({
     where: {
       date: {
@@ -72,12 +70,10 @@ export async function getCalendarByDateRange(
       },
     },
   });
-  console.log("db getCalendarByDateRange", data);
   return data;
 }
 
 export async function updateRiderScores(): Promise<Rider[]> {
-  console.log("db updateRiderScores");
   const riders = await prisma.rider.findMany();
 
   for (const rider of riders) {
@@ -99,15 +95,14 @@ export async function updateRiderScores(): Promise<Rider[]> {
       },
     });
   }
-  await revalidateTag("draftTeamResults");
-  await revalidateTag("mensDraftTeamData");
-  await revalidateTag("womensDraftTeamData");
+  revalidateTag("draftTeamResults");
+  revalidateTag("mensDraftTeamData");
+  revalidateTag("womensDraftTeamData");
 
   return riders;
 }
 
 export async function updateScores(): Promise<DraftTeam[]> {
-  console.log("db updateTeamScores");
   const teams = await prisma.draftTeam.findMany();
 
   for (const team of teams) {
@@ -132,27 +127,24 @@ export async function updateScores(): Promise<DraftTeam[]> {
       },
     });
   }
-  await revalidateTag("draftTeamResults");
-  await revalidateTag("mensDraftTeamData");
-  await revalidateTag("womensDraftTeamData");
+  revalidateTag("draftTeamResults");
+  revalidateTag("mensDraftTeamData");
+  revalidateTag("womensDraftTeamData");
 
   return teams;
 }
 
 export async function createRaces(races: Prisma.RaceCreateManyInput[]) {
-  console.log("db createRace", races);
   const data = await prisma.race.createManyAndReturn({
     data: races,
     skipDuplicates: true,
   });
-  await revalidatePath("/admin/admin-calendar");
-  await revalidateTag("calendarData");
-  console.log("new data: ", data);
+  revalidatePath("/admin/admin-calendar");
+  revalidateTag("calendarData");
   return data;
 }
 
 export async function updateRace(race: Race): Promise<Race> {
-  console.log("update race");
   const data = await prisma.race.update({
     where: {
       id: race.id,
@@ -166,8 +158,7 @@ export async function updateRace(race: Race): Promise<Race> {
       type: race.type,
     },
   });
-  await revalidateTag("calendarData");
-  console.log("new data: ", data);
+  revalidateTag("calendarData");
   return data;
 }
 
@@ -177,27 +168,24 @@ export async function deleteRace(raceId: number) {
       id: raceId,
     },
   });
-  await revalidateTag("calendarData");
+  revalidateTag("calendarData");
   return data;
 }
 
 
 export async function createRiders(riders: Prisma.RiderCreateManyInput[]) {
-  console.log("db createRider");
   const data = await prisma.rider.createManyAndReturn({
     data: riders,
     skipDuplicates: true,
   });
-  await revalidatePath("/admin/admin-riders");
-  await revalidateTag("mensRiders");
-  await revalidateTag("womensRiders");
+  revalidatePath("/admin/admin-riders");
+  revalidateTag("mensRiders");
+  revalidateTag("womensRiders");
 
-  console.log("new data: ", data);
   return data;
 }
 
 export async function updateRider(rider: Rider): Promise<Rider> {
-  console.log("db updateRider");
   const data = await prisma.rider.update({
     where: {
       id: rider.id,
@@ -213,25 +201,23 @@ export async function updateRider(rider: Rider): Promise<Rider> {
       score2025: rider.score2025,
     },
   });
-  await revalidateTag("mensRiders");
-  await revalidateTag("womensRiders");
+  revalidateTag("mensRiders");
+  revalidateTag("womensRiders");
   return data;
 }
 
 export async function deleteRider(riderId: number) {
-  console.log("db deleteRider");
   const data = await prisma.rider.delete({
     where: {
       id: riderId,
     },
   });
-  await revalidateTag("mensRiders");
-  await revalidateTag("womensRiders");
+  revalidateTag("mensRiders");
+  revalidateTag("womensRiders");
   return data;
 }
 
 export async function getRace(raceId: number): Promise<Race | null> {
-  console.log("db getRace");
   const data = await prisma.race.findUnique({
     where: {
       id: raceId,
@@ -246,7 +232,6 @@ interface RaceResultTable extends RaceResult {
 export async function getRaceResult(
   raceId: number
 ): Promise<RaceResultTable[] | null> {
-  console.log("db getRaceResult");
   const results = await prisma.raceResult.findMany({
     where: {
       raceId: raceId,
@@ -279,7 +264,6 @@ export async function getRaceResult(
 export async function getRaceResultsByDraftTeam(
   draftTeamId: number 
 ): Promise<RaceResult[]> {
-  console.log("db getRaceResultsByDraftTeam");
   const currentYear = new Date().getFullYear();
   const startDate = new Date(`${currentYear}-01-01`);
   const endDate = new Date(`${currentYear}-12-31`);
@@ -355,7 +339,6 @@ export async function createRaceResult(data: {
   sequence: number;
   riderId: number;
 }): Promise<RaceResult> {
-  console.log("db createRaceResult");
   const result = await prisma.raceResult.create({
     data: {
       raceId: data.raceId,
@@ -365,11 +348,10 @@ export async function createRaceResult(data: {
       riderId: data.riderId,
     },
   });
-  await revalidateTag("draftTeamResults");
+  revalidateTag("draftTeamResults");
   return result;
 }
 export async function updateRaceResult(data: RaceResult): Promise<RaceResult> {
-  console.log("db updateRaceResult");
   const result = await prisma.raceResult.update({
     where: {
       raceId_sequence: {
@@ -385,11 +367,10 @@ export async function updateRaceResult(data: RaceResult): Promise<RaceResult> {
       riderId: data.riderId,
     },
   });
-  await revalidateTag("draftTeamResults");
+  revalidateTag("draftTeamResults");
   return result;
 }
 export async function getAllRiders(): Promise<Rider[]> {
-  console.log("db getAllRiders");
   const data = await prisma.rider.findMany({
     orderBy: [
       {
@@ -401,7 +382,6 @@ export async function getAllRiders(): Promise<Rider[]> {
 }
 
 export async function getUser(email: string): Promise<User | null> {
-  console.log("db getUser");
   const data = await prisma.user.findFirst({
     where: {
       email: email,
@@ -411,7 +391,6 @@ export async function getUser(email: string): Promise<User | null> {
 }
 
 export async function updateUser(user: { email: string; name: string }) {
-  console.log("db updateUser", user);
   try {
     await prisma.user.upsert({
       where: { email: user.email },
@@ -444,10 +423,18 @@ export type DraftTeamWithUser = Prisma.DraftTeamGetPayload<
   typeof draftTeamWithUser
 >
 
+const draftRiderDetails = Prisma.validator<Prisma.DraftTeamRidersDefaultArgs>()({
+  include: {
+    rider: true,
+  },
+});
+
+export type DraftTeamRidersWithDetails = Prisma.DraftTeamRidersGetPayload<
+  typeof draftRiderDetails>
+
 export async function getDraftTeams(
   type: boolean
 ): Promise<DraftTeamWithUser[] | null> {
-  console.log("db getDraftTeams", type);
   const data = await prisma.draftTeam.findMany({
     where: {
       type: type,
@@ -473,7 +460,6 @@ export async function getDraftTeam(
   userId: string,
   type: boolean
 ): Promise<DraftTeamWithRiders | undefined> {
-  console.log("db getDraftTeam");
   const data = await prisma.draftTeam.findFirst({
     where: {
       userId: userId,
@@ -488,7 +474,6 @@ export async function getDraftTeam(
       },
     },
   });
-  console.log("draft team data", data);
   return data ?? undefined;
 }
 
@@ -508,7 +493,6 @@ export type DraftTeamWithRiders = Prisma.DraftTeamGetPayload<
 export async function getDraftTeamById(
   teamId: number
 ): Promise<DraftTeamWithRiders | undefined> {
-  console.log("db getDraftTeamById");
   const data = await prisma.draftTeam.findUnique({
     where: {
       id: teamId,
@@ -529,7 +513,6 @@ export async function createDraftTeam(
   teamName: string,
   type: boolean
 ): Promise<DraftTeam> {
-  console.log("db createDraftTeam");
   const data = await prisma.draftTeam.create({
     data: {
       name: teamName,
@@ -538,8 +521,8 @@ export async function createDraftTeam(
       userId: user.id,
     },
   });
-  await revalidateTag("mensDraftTeamData");
-  await revalidateTag("womensDraftTeamData");
+  revalidateTag("mensDraftTeamData");
+  revalidateTag("womensDraftTeamData");
   return data;
 }
 
@@ -547,15 +530,14 @@ export async function lockDraftTeam(
   userId: string,
   team: DraftTeam
 ): Promise<DraftTeam> {
-  console.log("db lockDraftTeam");
   const data = await prisma.draftTeam.update({
     where: { id: team.id, userId: userId },
     data: {
       locked: true,
     },
   });
-  await revalidateTag("mensDraftTeamData");
-  await revalidateTag("womensDraftTeamData");
+  revalidateTag("mensDraftTeamData");
+  revalidateTag("womensDraftTeamData");
   return data;
 }
 
@@ -564,41 +546,50 @@ export const addRiderToTeam = async (
   team: DraftTeamWithRiders,
   rider: Rider
 ): Promise<DraftTeamRiders> => {
-  console.log("db addRiderToTeam");
-  const data = await prisma.draftTeamRiders.create({
+  const draftTeamRider = await prisma.draftTeamRiders.create({
     data: {
       userId: user.id,
       teamId: team.id,
       riderId: rider.id,
     },
   });
-  if (team.type === false) {
-    await revalidateTag(`mensDraftTeamData_${user.id}`);
+   if (team.type === false) {
+    revalidateTag(`mensDraftTeamData_${user.id}`);
   } else {
-    await revalidateTag(`womensDraftTeamData_${user.id}`);
+    revalidateTag(`womensDraftTeamData_${user.id}`);
   }
-  return data;
-};
+  return draftTeamRider;
+}
 
 export const removeRiderFromTeam = async (
   user: User,
   team: DraftTeam,
   rider: Rider
 ): Promise<{ count: number }> => {
-  console.log("db removeRiderFromTeam");
   if (team.type === false) {
-    await revalidateTag(`mensDraftTeamData_${user.id}`);
+    revalidateTag(`mensDraftTeamData_${user.id}`);
   } else {
-    await revalidateTag(`womensDraftTeamData_${user.id}`);
+    revalidateTag(`womensDraftTeamData_${user.id}`);
   }
   return await prisma.draftTeamRiders.deleteMany({
     where: { userId: user.id, teamId: team.id, riderId: rider.id },
   });
 };
 
+const resultsWithRace = Prisma.validator<Prisma.RaceResultDefaultArgs>()({
+  include: {
+    race: {}
+  }
+});
+export type ResultsWithRace = Prisma.RaceResultGetPayload<typeof resultsWithRace>;
+
 const riderWithResults = Prisma.validator<Prisma.RiderDefaultArgs>()({
   include: {
-    results: {},
+    results: {
+      include: {
+        race: {}
+      }
+    },
   },
 });
 export type RiderWithResults = Prisma.RiderGetPayload<typeof riderWithResults>;
@@ -606,7 +597,6 @@ export async function getRider(riderId: number): Promise<RiderWithResults | unde
   const currentYear = new Date().getFullYear();
   const startDate = new Date(`${currentYear}-01-01`);
   const endDate = new Date(`${currentYear}-12-31`);
-  console.log("db getRider");
 
   const rider = await prisma.rider.findUnique({
     where: { id: riderId },

@@ -316,8 +316,22 @@ export default function RaceResultTable({
       setFilteredRiders(filteredData);
     };
     initData();
-  }, [metadata, raceData.length, mensRiderData, womensRiderData]);
-
+  }, [metadata, 
+    raceData, 
+    mensRiderData, 
+    womensRiderData, 
+    BEST_OF_THE_REST_FINAL_TEMPLATE, 
+    BEST_OF_THE_REST_STAGE_TEMPLATE, 
+    BEST_OF_THE_REST_TEMPLATE, 
+    TOP_STAGE_RACES_STAGE_TEMPLATE, 
+    TOP_STAGE_RACES_FINAL_TEMPLATE, 
+    GRAND_TOUR_STAGE_TEMPLATE, 
+    GRAND_TOUR_FINAL_LEADER_JERSEY_TEMPLATE, 
+    MONUMENTS_AND_WORLDS_TEMPLATE, 
+    HOUR_RECORD_TEMPLATE, 
+    NATIONAL_CHAMP_TEMPLATE, 
+    MINOR_RACE_TEMPLATE, 
+    TOP_CLASSICS_TEMPLATE]);
   const handleSave = async () => {
     for (const row of rows) {
       const newRow = await createRaceResult({

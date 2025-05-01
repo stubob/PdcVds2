@@ -44,7 +44,6 @@ declare module "next-auth" {
 }
 const fetchUserSessionData = async (email: string) => {
   const dbuser = await getUser(email);
-  console.log("fetchUserSessionData", dbuser);
   return dbuser;
 };
 
@@ -57,14 +56,14 @@ export const fetchUserSession = async (session: Session | null) => {
       const userData = await fetchUserSessionData(session?.user?.email);
       if (userData) {
         const userSession: Session = {
-          id: session.id,
-          name: session.name || null,
-          email: session.email,
+          id: userData.id,
+          name: userData.name || null,
+          email: userData.email,
           emailVerified: session.emailVerified || null,
-          image: session.image || null,
-          admin: session.admin || false,
-          createdAt: new Date(session.createdAt),
-          updatedAt: new Date(session.updatedAt),
+          image: userData.image || null,
+          admin: userData.admin || false,
+          createdAt: new Date(userData.createdAt),
+          updatedAt: new Date(userData.updatedAt),
           user: userData,
           expires: session.expires
         };
@@ -177,7 +176,6 @@ export const getWomensDraftTeams = unstable_cache(
 export const getRiderById = async (id: number) =>
   unstable_cache(
     async () => {
-      console.log("getCachedRiderById");
       return await getRider(id); // Assuming getRider is the correct function to fetch a rider by id
     },
     [`rider_${id}`],
@@ -187,7 +185,6 @@ export const getRiderById = async (id: number) =>
 export const getRaceResultById = async (id: number) =>
   unstable_cache(
     async () => {
-      console.log("getCachedRaceResultById");
       return await getRaceResult(id); // Assuming getRider is the correct function to fetch a rider by id
     },
     [`race_${id}`],
@@ -197,7 +194,6 @@ export const getRaceResultById = async (id: number) =>
 export const getRaceById = async (id: number) => 
   unstable_cache(
     async () => {
-      console.log("getCachedRace");
       return await getRace(id); // Assuming getRider is the correct function to fetch a rider by id
     },
     [`race_${id}`],
@@ -206,8 +202,6 @@ export const getRaceById = async (id: number) =>
 
 export const newRaces = async (races: Race[]) => {
   const data = await createRaces(races);
-  console.log("datalayer createRaces", data);
-
   return data;
 }
 

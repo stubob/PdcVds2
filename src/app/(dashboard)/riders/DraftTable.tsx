@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import {
   DataGrid,
-  GRID_CHECKBOX_SELECTION_COL_DEF,
   GridColDef,
   GridRowSelectionModel,
 } from "@mui/x-data-grid";
@@ -22,16 +21,14 @@ import Grid from "@mui/material/Grid2";
 import { useSessionContext } from "../../contextprovider";
 import {
   DraftTeamWithRiders,
-  DraftTeamWithUser,
   addRiderToTeam,
   createDraftTeam,
-  getDraftTeam,
   removeRiderFromTeam,
 } from "../../prisma-queries";
 import RulesWidget from "../../components/RulesWidget";
 import { findFlagUrlByIso3Code } from "country-flags-svg";
 import Image from "next/image";
-import { Rider } from "@prisma/client";
+import { DraftTeamRiders, Rider } from "@prisma/client";
 
 interface RiderPageProps {
   mensDraftTeamData?: DraftTeamWithRiders;
@@ -40,6 +37,10 @@ interface RiderPageProps {
   womensRiderData: Rider[];
   session: any
 }
+
+type DraftTeamRidersWithDetails = DraftTeamRiders & {
+  rider: Rider;
+};
 
 export default function DraftTable({ mensDraftTeamData, mensRiderData, womensDraftTeamData, womensRiderData, session }: RiderPageProps) {
   const { isWomen } = useSessionContext();
@@ -64,14 +65,14 @@ export default function DraftTable({ mensDraftTeamData, mensRiderData, womensDra
         const selectedRiderIds = draftTeam.draftTeamRiders.map(
           (rider) => rider.riderId
         );
-        const updatedDraftTeamRiders = draftTeam.draftTeamRiders.map(
-          (draftRider) => {
-            const rider = riderData.find(
-              (rider) => rider.id === draftRider.riderId
-            );
-            return { ...draftRider, ...rider };
-          }
-        );
+        const updatedDraftTeamRiders = draftTeam.draftTeamRiders
+        .map((draftRider) => {
+          const rider = riderData.find(
+            (rider) => rider.id === draftRider.riderId
+          );
+          return { ...draftRider, ...rider };
+        })
+        .sort((a, b) => (b.price2025 && a.price2025) ? b.price2025 - a.price2025 : 0); // Sort by price2025 in descending order with null check
         draftTeam.draftTeamRiders = updatedDraftTeamRiders;
         setSelectionModel(selectedRiderIds);
       }
@@ -95,36 +96,44 @@ export default function DraftTable({ mensDraftTeamData, mensRiderData, womensDra
       (id) => !newSelectionModel.includes(id)
     );
   
-    // Add riders to the team
     for (const riderId of addedRiders) {
       const rider = riders.find((rider) => rider.id === riderId);
       if (rider) {
-        await addRiderToTeam(session.user, team, rider); // Add rider to the team in the backend
-        setTeam((prevTeam: { draftTeamRiders: any; }) => {
-          if (!prevTeam) return undefined; // Handle undefined case
+        await addRiderToTeam(session.user, team, rider);
+        const newRider: DraftTeamRidersWithDetails = {
+          riderId: rider.id,
+          teamId: team.id,
+          userId: session.user.id,
+          id: 0,
+          rider: rider,
+        };
+        setTeam((prevTeam: { draftTeamRiders: DraftTeamRidersWithDetails[] }) => {
+          if (!prevTeam) return undefined;
+          const updatedRiders = [
+            ...prevTeam.draftTeamRiders,
+            newRider, // Add the new draft rider
+          ].sort((a, b) => (b.rider.price2025 && a.rider.price2025) ? b.rider.price2025 - a.rider.price2025 : 0);
           return {
             ...prevTeam,
-            draftTeamRiders: [
-              ...prevTeam.draftTeamRiders,
-              { rider }, // Ensure the correct structure
-            ],
+            draftTeamRiders: updatedRiders,
           };
         });
       }
     }
-  
+    
     // Remove riders from the team
     for (const riderId of removedRiders) {
       const rider = riders.find((rider) => rider.id === riderId);
       if (rider) {
         await removeRiderFromTeam(session.user, team, rider); // Remove rider from the team in the backend
-        setTeam((prevTeam: { draftTeamRiders: any[]; }) => {
-          if (!prevTeam) return undefined; // Handle undefined case
+        setTeam((prevTeam: { draftTeamRiders: DraftTeamRidersWithDetails[] }) => {
+          if (!prevTeam) return undefined;
+          const updatedRiders = prevTeam.draftTeamRiders
+            .filter((r) => r.riderId !== riderId) // Remove rider from the local state
+            .sort((a, b) => (b.rider.price2025 && a.rider.price2025) ? b.rider.price2025 - a.rider.price2025 : 0);
           return {
             ...prevTeam,
-            draftTeamRiders: prevTeam.draftTeamRiders.filter(
-              (r) => r.id !== riderId // Remove rider from the local state
-            ),
+            draftTeamRiders: updatedRiders,
           };
         });
       }
@@ -228,13 +237,13 @@ export default function DraftTable({ mensDraftTeamData, mensRiderData, womensDra
                   }}
                 />
                 <List>
-                  {team.draftTeamRiders?.map((rider: any, index: number) => (
+                  {team.draftTeamRiders?.map((rider: DraftTeamRidersWithDetails, index: number) => (
                     <ListItem key={index} disablePadding>
-                      {rider.nation ? (
+                      {rider.rider.nation ? (
                       <ListItemIcon>
                       <Image
-                        src={findFlagUrlByIso3Code(rider.nation)}
-                        alt={rider.nation}
+                        src={findFlagUrlByIso3Code(rider.rider.nation)}
+                        alt={rider.rider.nation}
                         width={24}
                         height={16}
                         style={{ border: "1px solid grey" }}
@@ -242,14 +251,14 @@ export default function DraftTable({ mensDraftTeamData, mensRiderData, womensDra
                     </ListItemIcon>
                     ): null}
                       <ListItemText
-                        primary={rider.name}
+                        primary={rider.rider.name}
                         secondary={
                           <Typography
                             component="span"
                             variant="body2"
                             sx={{ color: "text.primary", display: "inline" }}
                           >
-                            Cost: {rider.price2025}
+                            Cost: {rider.rider.price2025}
                           </Typography>
                         }
                       />
