@@ -5,6 +5,7 @@ import {
   GridActionsCellItem,
   GridColDef,
   GridRowId,
+  GridRowModel,
   GridRowModes,
   GridRowModesModel,
   useGridApiRef,
@@ -17,7 +18,7 @@ import { useSessionContext } from "../../../contextprovider";
 import CalendarCell from "../../../components/CalenderCell";
 import { deleteRace, updateRace } from "../../../prisma-queries";
 import { Race } from "@prisma/client";
-import { Save } from "@mui/icons-material";
+import { Cancel, Edit, Save } from "@mui/icons-material";
 
 interface AdminCalendarTableProps {
   calendarData: any[];
@@ -44,21 +45,42 @@ export default function AdminCalendarTable({calendarData}: AdminCalendarTablePro
   }, [isWomen, calendarData]);
 
   const handleSaveClick = (id: GridRowId) => () => {
-    const row = apiRef.current.getRow(id);
+    const row = apiRef.current.getRowWithUpdatedValues(id, "");
     if (row) {
-      updateRace(row);
-      const updatedRow = { ...row, _action: "update" };
+      updateRace(row as Race);
+      const updatedRow = { ...apiRef.current.getRow(id), _action: "update" };
       apiRef.current.updateRows([updatedRow]);
       setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     }
   }
+  const handleEditClick = (id: GridRowId) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+  };
+
+  const handleCancelClick = (id: GridRowId) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View, ignoreModifications: true  } });
+  };
+
+  const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
+    setRowModesModel(newRowModesModel);
+  };
 
   const handleDeleteClick = (id: GridRowId) => () => {
     deleteRace(id as number);
     apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
   };
 
+  const processRowUpdate = (newRow: Race) => {
+    const updatedRow = { ...newRow, isNew: false };
+    setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
+    return updatedRow;
+  };
+  
   const columns: GridColDef[] = [
+    {
+      field: "id",
+      type: "number",
+    },
     {
       field: "date",
       headerName: "Date",
@@ -126,35 +148,42 @@ export default function AdminCalendarTable({calendarData}: AdminCalendarTablePro
       headerName: "Actions",
       cellClassName: "actions",
       getActions: ({ id }) => {
-        return [
-          <GridActionsCellItem
-            key={id}
-            icon={<Save />}
-            label="Save"
-            color="inherit"
-            onClick={handleSaveClick(id)}
+        if(rowModesModel[id]?.mode === GridRowModes.Edit) {
+          return [
+            <GridActionsCellItem
+              key={id}
+              icon={<Save />}
+              label="Save"
+              color="inherit"
+              onClick={handleSaveClick(id)}
+              />,
+            <GridActionsCellItem
+              key={id}
+              icon={<Cancel />}
+              label="Cancel"
+              onClick={handleCancelClick(id)}
+              color="inherit"/>
+          ];
+        }else {
+          return [
+            <GridActionsCellItem
+              key={id}
+              icon={<Edit />}
+              label="Edit"
+              onClick={handleEditClick(id)}
+              color="inherit"/>,
+            <GridActionsCellItem
+              key={id}
+              icon={<DeleteIcon />}
+              label="Delete"
+              onClick={handleDeleteClick(id)}
+              color="inherit"
             />,
-          <GridActionsCellItem
-            key={id}
-            icon={<DeleteIcon />}
-            label="Delete"
-            onClick={handleDeleteClick(id)}
-            color="inherit"
-          />,
-        ];
+          ];
+        }
       },
     },
   ];
-
-  // const fetchCalendarData = async () => {
-  //   try {
-  //     const updatedData = await getCalendarData(); // Replace with your actual API call
-  //     apiRef.current.setRows(updatedData); // Update the rows in the DataGrid
-  //     console.log("Calendar data successfully reloaded.");
-  //   } catch (error) {
-  //     console.error("Error fetching calendar data:", error);
-  //   }
-  // };
 
 
   const autosizeOptions = {
@@ -177,15 +206,18 @@ export default function AdminCalendarTable({calendarData}: AdminCalendarTablePro
             },
           },
         }}
+        columnVisibilityModel={{ id: false }}
+        editMode="row"
         rowHeight={30}
         keepNonExistentRowsSelected
         pageSizeOptions={[10]}
-        disableRowSelectionOnClick
         disableColumnSelector={true}
         autosizeOnMount={true}
         autosizeOptions={autosizeOptions}
         apiRef={apiRef}
-        //processRowUpdate={processRowUpdate}
+        onRowModesModelChange={handleRowModesModelChange}
+        processRowUpdate={processRowUpdate}
+        rowModesModel={rowModesModel}
       />
     </main>
   );

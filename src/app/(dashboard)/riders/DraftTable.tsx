@@ -28,7 +28,7 @@ import {
 import RulesWidget from "../../components/RulesWidget";
 import { findFlagUrlByIso3Code } from "country-flags-svg";
 import Image from "next/image";
-import { DraftTeamRiders, Rider } from "@prisma/client";
+import { DraftTeamRider, Rider } from "@prisma/client";
 
 interface RiderPageProps {
   mensDraftTeamData?: DraftTeamWithRiders;
@@ -38,7 +38,7 @@ interface RiderPageProps {
   session: any
 }
 
-type DraftTeamRidersWithDetails = DraftTeamRiders & {
+type DraftTeamRiderWithDetails = DraftTeamRider & {
   rider: Rider;
 };
 
@@ -100,14 +100,15 @@ export default function DraftTable({ mensDraftTeamData, mensRiderData, womensDra
       const rider = riders.find((rider) => rider.id === riderId);
       if (rider) {
         await addRiderToTeam(session.user, team, rider);
-        const newRider: DraftTeamRidersWithDetails = {
+        const newRider: DraftTeamRiderWithDetails = {
           riderId: rider.id,
           teamId: team.id,
           userId: session.user.id,
           id: 0,
           rider: rider,
+          active: true,
         };
-        setTeam((prevTeam: { draftTeamRiders: DraftTeamRidersWithDetails[] }) => {
+        setTeam((prevTeam: { draftTeamRiders: DraftTeamRiderWithDetails[] }) => {
           if (!prevTeam) return undefined;
           const updatedRiders = [
             ...prevTeam.draftTeamRiders,
@@ -126,7 +127,7 @@ export default function DraftTable({ mensDraftTeamData, mensRiderData, womensDra
       const rider = riders.find((rider) => rider.id === riderId);
       if (rider) {
         await removeRiderFromTeam(session.user, team, rider); // Remove rider from the team in the backend
-        setTeam((prevTeam: { draftTeamRiders: DraftTeamRidersWithDetails[] }) => {
+        setTeam((prevTeam: { draftTeamRiders: DraftTeamRiderWithDetails[] }) => {
           if (!prevTeam) return undefined;
           const updatedRiders = prevTeam.draftTeamRiders
             .filter((r) => r.riderId !== riderId) // Remove rider from the local state
@@ -237,7 +238,7 @@ export default function DraftTable({ mensDraftTeamData, mensRiderData, womensDra
                   }}
                 />
                 <List>
-                  {team.draftTeamRiders?.map((rider: DraftTeamRidersWithDetails, index: number) => (
+                  {team.draftTeamRiders?.map((rider: DraftTeamRiderWithDetails, index: number) => (
                     <ListItem key={index} disablePadding>
                       {rider.rider.nation ? (
                       <ListItemIcon>

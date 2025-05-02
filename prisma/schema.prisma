@@ -25,9 +25,16 @@ model Rider {
   score2024 Int     @map("score_2024")
   type      Boolean
   results  RaceResult[]
-  draftTeamRiders DraftTeamRiders[]
+  draftTeamRiders DraftTeamRider[]
 
   @@map("rider")
+}
+
+model TradeTeam {
+    id        Int     @id @default(autoincrement())
+    name      String
+    nameKey   String  @map("name_key")
+    year      String
 }
 
 model DraftTeam {
@@ -37,20 +44,21 @@ model DraftTeam {
   year            String
   user            User              @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   userId          String            @map("user_id")
-  draftTeamRiders DraftTeamRiders[]
+  draftTeamRiders DraftTeamRider[]
   locked          Boolean           @default(false)
   score2025       Int               @default(0)
 
   @@map("draft_team")
 }
 
-model DraftTeamRiders {
+model DraftTeamRider {
   id        Int       @id @default(autoincrement())
   riderId   Int       @map("rider_id")
   userId    String    @map("user_id")
   draftTeam DraftTeam @relation(fields: [teamId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   teamId    Int       @map("team_id")
   rider    Rider  @relation(fields: [riderId], references: [id])
+  active          Boolean           @default(true)
 
   @@map("draft_team_riders")
 

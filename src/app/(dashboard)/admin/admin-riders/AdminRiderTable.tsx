@@ -18,6 +18,7 @@ import { deleteRider, updateRider } from "../../../prisma-queries";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
 import { Rider } from "@prisma/client";
+import { Save, Cancel, Edit } from "@mui/icons-material";
 
 interface RiderPageProps {
   mensRiderData: Rider[];
@@ -35,19 +36,37 @@ export default function RiderPage({
   const apiRef = useGridApiRef();
 
   const handleSaveClick = (id: GridRowId) => () => {
-    const row = apiRef.current.getRow(id);
+    const row = apiRef.current.getRowWithUpdatedValues(id, "");
     if (row) {
-      updateRider(row);
-      const updatedRow = { ...row, _action: "update" };
+      updateRider(row as Rider);
+      const updatedRow = { ...apiRef.current.getRow(id), _action: "update" };
       apiRef.current.updateRows([updatedRow]);
       setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     }
   }
+  const handleEditClick = (id: GridRowId) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+  };
+
+  const handleCancelClick = (id: GridRowId) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View, ignoreModifications: true  } });
+  };
+
+  const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
+    setRowModesModel(newRowModesModel);
+  };
 
   const handleDeleteClick = (id: GridRowId) => () => {
     deleteRider(id as number);
     apiRef.current.updateRows([{ id: id, _action: 'delete' }]);
   };
+
+  const processRowUpdate = (newRow: Rider) => {
+    const updatedRow = { ...newRow, isNew: false };
+    setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
+    return updatedRow;
+  };
+
   const columns: GridColDef[] = [
     { ...GRID_CHECKBOX_SELECTION_COL_DEF, headerClassName: "header-checkbox" },
     { field: "name", headerName: "Name", editable: true },
@@ -95,24 +114,39 @@ export default function RiderPage({
       headerName: "Actions",
       cellClassName: "actions",
       getActions: ({ id }) => {
-        return [
-          <GridActionsCellItem
-            key={id}
-            icon={<SaveIcon />}
-            label="Save"
-            sx={{
-              color: "primary.main",
-            }}
-            onClick={handleSaveClick(id)}
-          />,
-          <GridActionsCellItem
-            key={id}
-            icon={<DeleteIcon />}
-            label="Delete"
-            onClick={handleDeleteClick(id)}
-            color="inherit"
-          />,
-        ];
+        if(rowModesModel[id]?.mode === GridRowModes.Edit) {
+          return [
+            <GridActionsCellItem
+              key={id}
+              icon={<Save />}
+              label="Save"
+              color="inherit"
+              onClick={handleSaveClick(id)}
+              />,
+            <GridActionsCellItem
+              key={id}
+              icon={<Cancel />}
+              label="Cancel"
+              onClick={handleCancelClick(id)}
+              color="inherit"/>
+          ];
+        }else {
+          return [
+            <GridActionsCellItem
+              key={id}
+              icon={<Edit />}
+              label="Edit"
+              onClick={handleEditClick(id)}
+              color="inherit"/>,
+            <GridActionsCellItem
+              key={id}
+              icon={<DeleteIcon />}
+              label="Delete"
+              onClick={handleDeleteClick(id)}
+              color="inherit"
+            />,
+          ];
+        }
       },
     },
   ];
@@ -151,6 +185,12 @@ export default function RiderPage({
           autosizeOnMount={true}
           autosizeOptions={autosizeOptions}
           apiRef={apiRef}
+          columnVisibilityModel={{ id: false }}
+          editMode="row"
+          onRowModesModelChange={handleRowModesModelChange}
+          processRowUpdate={processRowUpdate}
+          rowModesModel={rowModesModel}
+  
         />
     </main>
   );
