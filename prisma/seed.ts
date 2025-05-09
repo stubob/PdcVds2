@@ -14,7 +14,7 @@ async function rawSql() {
   await prisma.$executeRaw`INSERT INTO public.rider (name, nation, team_key, name_key, age, price_2025, score_2025, score_2024, type) VALUES ('Annemiek van Vleuten', 'NLD', 'Movistar Team', 'annemiek-van-vleuten', 39, 20, 0, 0, true);`
   await prisma.$executeRaw`INSERT INTO public.rider (name, nation, team_key, name_key, age, price_2025, score_2025, score_2024, type) VALUES ('Marianne Vos', 'NLD', 'Jumbo - Visma', 'marianne-vos', 34, 30, 0, 0, true);`
   await prisma.$executeRaw`INSERT INTO public.rider (name, nation, team_key, name_key, age, price_2025, score_2025, score_2024, type) VALUES ('Ellen van Dijk', 'NLD', 'Trek - Segafredo', 'ellen-van-dijk', 34, 30, 0, 0, true);`
-  await prisma.$executeRaw`INSERT INTO public.rider (name, nation, team_key, name_key, age, price_2025, score_2025, score_2024, type) VALUES ('Lisa Brennauer', 'GER', 'Ceratizit - WNT', 'lisa-brennauer', 33, 30, 0, 0, true);`
+  await prisma.$executeRaw`INSERT INTO public.rider (name, nation, team_key, name_key, age, price_2025, score_2025, score_2024, type) VALUES ('Lisa Brennauer', 'DEU', 'Ceratizit - WNT', 'lisa-brennauer', 33, 30, 0, 0, true);`
   await prisma.$executeRaw`INSERT INTO public.rider (name, nation, team_key, name_key, age, price_2025, score_2025, score_2024, type) VALUES ('Elisa Longo Borghini', 'ITA', 'Trek - Segafredo', 'elisa-longo-borghini', 30, 50, 0, 0, true);`
 
     await prisma.$executeRaw`INSERT INTO public.race ("name", name_key, nation, "date", "type", category) VALUES ('Strade Bianche', 'strade-bianche', 'Italy', '2025-03-09 00:00:00.000', false, 'Monuments and Worlds');`

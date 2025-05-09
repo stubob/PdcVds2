@@ -29,6 +29,7 @@ import RulesWidget from "../../components/RulesWidget";
 import { findFlagUrlByIso3Code } from "country-flags-svg";
 import Image from "next/image";
 import { DraftTeamRider, Rider } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 interface RiderPageProps {
   mensDraftTeamData?: DraftTeamWithRiders;
@@ -75,15 +76,20 @@ export default function DraftTable({ mensDraftTeamData, mensRiderData, womensDra
         .sort((a, b) => (b.price2025 && a.price2025) ? b.price2025 - a.price2025 : 0); // Sort by price2025 in descending order with null check
         draftTeam.draftTeamRiders = updatedDraftTeamRiders;
         setSelectionModel(selectedRiderIds);
+      }else if(session){
+        setTeam(undefined);
+        setTeamName("");
+        setSelectionModel([]);
       }
     };
     fetchData();
-  }, [isWomen, mensDraftTeamData, mensRiderData, womensDraftTeamData, womensRiderData]);
+  }, [session, isWomen, mensDraftTeamData, mensRiderData, womensDraftTeamData, womensRiderData]);
 
   const handleCreateTeam = async () => {
     // Add logic to create a team
     createDraftTeam(session.user, teamName, isWomen);
     setTeam({ name: teamName, draftTeamRiders: [], userId: session.user.id, type: isWomen, id: 0, locked: false, score2025: 0, year: '2025' });
+
   };
 
   const handleSelectionModelChange = async (newSelectionModel: GridRowSelectionModel) => {

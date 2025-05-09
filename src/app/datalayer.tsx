@@ -51,8 +51,8 @@ export const fetchUserSession = async (session: Session | null) => {
   if (!session?.user?.email) {
     return null;
   }
-  return unstable_cache(
-    async () => {
+  // return unstable_cache(
+  //   async () => {
       const userData = await fetchUserSessionData(session?.user?.email);
       if (userData) {
         const userSession: Session = {
@@ -67,13 +67,14 @@ export const fetchUserSession = async (session: Session | null) => {
           user: userData,
           expires: session.expires
         };
+        console.log("User Session Data:", userSession);
         return userSession;
       }
       return null;
-    },
-    [`session_${session.user.email}`],
-    { revalidate: CACHE_REVALIDATION_TIME, tags: [`session_${session.user.email}`] }
-  )();
+  //   },
+  //   [`session_${session.user.email}`],
+  //   { revalidate: CACHE_REVALIDATION_TIME, tags: [`session_${session.user.email}`] }
+  // )();
 };
 export const cachedLogin = async (session: Session) => {
   if (!session?.id) {
@@ -86,132 +87,112 @@ export const cachedLogin = async (session: Session) => {
   )();
 };
 
-export const getMensTeamData = unstable_cache(
-  async (session) => {
-    if (session) {
-      return await getDraftTeam(session, false);
-    }
-  },
-  ["mensDraftTeamData"],
-  { revalidate: CACHE_REVALIDATION_TIME, tags: ["mensDraftTeamData"] }
-);
-
-export const getWomensTeamData = unstable_cache(
-  async (session) => {
-    if (session) {
-      return await getDraftTeam(session, true);
-    }
-  },
-  ["womensDraftTeamData"],
-  { revalidate: CACHE_REVALIDATION_TIME, tags: ["womensDraftTeamData"] }
-);
-
-export const getDraftTeamResults = async (draftTeamId: number) => unstable_cache(
-  async () => {
+ export const getDraftTeamResults = async (draftTeamId: number) => //unstable_cache(
+  { //async () => {
     return await getRaceResultsByDraftTeam(draftTeamId);
-  },
-  [`draftTeamResults_${draftTeamId}`],
-  { revalidate: CACHE_REVALIDATION_TIME, tags: [`draftTeamResults_${draftTeamId}`] }
-)();
+  }
+  // [`draftTeamResults_${draftTeamId}`],
+  // { revalidate: CACHE_REVALIDATION_TIME, tags: [`draftTeamResults_${draftTeamId}`] }
+//)();
 
-export const getMensRiders = unstable_cache(
+export const getMensRiders = //unstable_cache(
   async () => {
     const riders = await getAllRiders();
     return riders.filter((rider) => rider.type === false);
-  },
-  ["mensRiders"],
-  { revalidate: CACHE_REVALIDATION_TIME, tags: ["mensRiders"] }
-);
+  }
+//   ["mensRiders"],
+//   { revalidate: CACHE_REVALIDATION_TIME, tags: ["mensRiders"] }
+// );
 
 export const getMensDraftTeam = async (session: Session | null) => {
   if (session && session.id) {
 
-  return unstable_cache(
-    async () => {
+  // return unstable_cache(
+  //   async () => {
       return await getDraftTeam(session.id, false);
-    },
-    [`mensDraftTeamData_${session.id}`],
-    { revalidate: CACHE_REVALIDATION_TIME, tags: [`mensDraftTeamData_${session.id}`] }
-  )();
+  //   },
+  //   [`mensDraftTeamData_${session.id}`],
+  //   { revalidate: CACHE_REVALIDATION_TIME, tags: [`mensDraftTeamData_${session.id}`] }
+  // )();
 }
 };
 
 export const getWomensDraftTeam = async (session: Session | null) => {
   if (session && session.id) {
-  return unstable_cache(
-    async () => {
+  // return unstable_cache(
+  //   async () => {
       return await getDraftTeam(session.id, true);
-    },
-    [`womensDraftTeamData_${session.id}`],
-    { revalidate: CACHE_REVALIDATION_TIME, tags: [`womensDraftTeamData_${session.id}`] }
-  )();
+  //   },
+  //   [`womensDraftTeamData_${session.id}`],
+  //   { revalidate: CACHE_REVALIDATION_TIME, tags: [`womensDraftTeamData_${session.id}`] }
+  // )();
 }
 };
 
-export const getWomensRiders = unstable_cache(
+export const getWomensRiders = //unstable_cache(
   async () => {
     const riders = await getAllRiders();
     return riders.filter((rider) => rider.type === true);
-  },
-  ["womensRiders"],
-  { revalidate: CACHE_REVALIDATION_TIME, tags: ["womensRiders"] }
-);
+  // },
+  // ["womensRiders"],
+  // { revalidate: CACHE_REVALIDATION_TIME, tags: ["womensRiders"] }
+  };
 
-export const getMensDraftTeams = unstable_cache(
+export const getMensDraftTeams = //unstable_cache(
   async () => {
     return await getDraftTeams(false);
-  },
-  ["mensTeamData"],
-  { revalidate: CACHE_REVALIDATION_TIME, tags: ["mensTeamData"] }
-);
+  // },
+  // ["mensTeamData"],
+  // { revalidate: CACHE_REVALIDATION_TIME, tags: ["mensTeamData"] }
+  };
 
-export const getWomensDraftTeams = unstable_cache(
+export const getWomensDraftTeams = //unstable_cache(
   async () => {
     return await getDraftTeams(true);
-  },
-  ["womensTeamData"],
-  { revalidate: CACHE_REVALIDATION_TIME, tags: ["womensTeamData"] }
-);
+  // },
+  // ["womensTeamData"],
+  // { revalidate: CACHE_REVALIDATION_TIME, tags: ["womensTeamData"] }
+  };
 
 export const getRiderById = async (id: number) =>
-  unstable_cache(
-    async () => {
+  // unstable_cache(
+   { // async () => {
       return await getRider(id); // Assuming getRider is the correct function to fetch a rider by id
-    },
-    [`rider_${id}`],
-    { revalidate: CACHE_REVALIDATION_TIME, tags: [`rider_${id}`] }
-  )();
+    };
+  //   [`rider_${id}`],
+  //   { revalidate: CACHE_REVALIDATION_TIME, tags: [`rider_${id}`] }
+  // )();
 
 export const getRaceResultById = async (id: number) =>
-  unstable_cache(
-    async () => {
+  // unstable_cache(
+{//    async () => {
       return await getRaceResult(id); // Assuming getRider is the correct function to fetch a rider by id
-    },
-    [`race_${id}`],
-    { revalidate: CACHE_REVALIDATION_TIME, tags: [`race_${id}`] }
-  )();
+    };
+  //   [`race_${id}`],
+  //   { revalidate: CACHE_REVALIDATION_TIME, tags: [`race_${id}`] }
+  // )();
 
 export const getRaceById = async (id: number) => 
-  unstable_cache(
-    async () => {
+//  unstable_cache(
+ {//}   async () => {
       return await getRace(id); // Assuming getRider is the correct function to fetch a rider by id
-    },
-    [`race_${id}`],
-    { revalidate: CACHE_REVALIDATION_TIME, tags: [`race_${id}`] }
-  )();
+    };
+  //   [`race_${id}`],
+  //   { revalidate: CACHE_REVALIDATION_TIME, tags: [`race_${id}`] }
+  // )();
 
 export const newRaces = async (races: Race[]) => {
   const data = await createRaces(races);
   return data;
 }
 
-export const getCalendarData = unstable_cache(
+export const getCalendarData = //unstable_cache(
   async () => {
     return await getCalendar();
-  },
-  ["calendarData"],
-  { revalidate: CACHE_REVALIDATION_TIME, tags: ["calendarData"] }
-);
+  // },
+  // ["calendarData"],
+  // { revalidate: CACHE_REVALIDATION_TIME, tags: ["calendarData"] }
+  };
 import { addDays } from "date-fns";
 import { Race, User } from "@prisma/client";
 import { Session } from "next-auth";

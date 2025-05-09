@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import {
   createRaceResult,
+  deleteRaceResult,
   updateDraftScores,
   updateRaceResult,
   updateRiderScore,
@@ -384,6 +385,7 @@ export default function RaceResultTable({
         });
         await updateRiderScore(row.selectedRider.id, -row.points);
         await updateDraftScores(row.selectedRider.id, -row.points);
+        await deleteRaceResult(metadata.id);
       }
     }
       setRows((prevRows) =>

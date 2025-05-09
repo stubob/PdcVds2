@@ -21,26 +21,20 @@ export default async function MyTeamPage() {
   let mensTeamResults = null;
   let womensTeamResults = null;
 
-  if (mensDraftTeamData?.id && womensDraftTeamData?.id) {
-    const mensTeamResultsPromise = getDraftTeamResults(mensDraftTeamData.id);
-    const womensTeamResultsPromise = getDraftTeamResults(womensDraftTeamData.id);
+  if (mensDraftTeamData?.id) {
+    mensTeamResults = await getDraftTeamResults(mensDraftTeamData.id);
+  }
 
-    [mensTeamResults, womensTeamResults] = await Promise.all([
-      mensTeamResultsPromise,
-      womensTeamResultsPromise,
-    ]);
+  if (womensDraftTeamData?.id) {
+    womensTeamResults = await getDraftTeamResults(womensDraftTeamData.id);
   }
 
   return (
     <Stack direction="column" spacing={2}>
-{mensDraftTeamData && womensDraftTeamData ? (
   <div>
         <FlagsWidget mensTeamData={mensDraftTeamData} womensTeamData={womensDraftTeamData} />
         <RiderTable mensDraftTeamData={mensDraftTeamData} womensDraftTeamData={womensDraftTeamData} />
         </div>
-      ) : (
-        <Typography variant="h6">No team data available</Typography>
-      )}
       <Typography variant="h4">Results</Typography>
       <TeamResultsTable mensResults={mensTeamResults} womensResults={womensTeamResults} />
     </Stack>

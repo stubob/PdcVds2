@@ -54,12 +54,10 @@ export default function TeamResultsTable({
   const [data, setData] = useState<any[]>([]);
 
   useEffect(() => {
-    if (mensResults && womensResults) {
-      if (isWomen) {
-        setData(womensResults);
-      } else {
-        setData(mensResults);
-      }
+    if (mensResults && !isWomen) {
+      setData(mensResults);
+    } else if (womensResults && isWomen) {
+      setData(womensResults);
     }
   }, [mensResults, womensResults, isWomen]);
   return (

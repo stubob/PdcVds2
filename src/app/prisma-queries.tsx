@@ -366,6 +366,17 @@ export async function updateRaceResult(data: RaceResult): Promise<RaceResult> {
   revalidateTag("draftTeamResults");
   return result;
 }
+
+export async function deleteRaceResult(raceId: number) {
+  await prisma.raceResult.deleteMany({
+    where: {
+      raceId: raceId,
+    },
+  });
+  revalidateTag("draftTeamResults");
+}
+
+
 export async function getAllRiders(): Promise<Rider[]> {
   const data = await prisma.rider.findMany({
     orderBy: [
@@ -521,7 +532,9 @@ export async function createDraftTeam(
   });
   revalidateTag("mensDraftTeamData");
   revalidateTag("womensDraftTeamData");
-  return data;
+  revalidatePath("/riders");
+  revalidatePath("/my-team");
+return data;
 }
 
 export async function lockDraftTeam(
@@ -536,7 +549,9 @@ export async function lockDraftTeam(
   });
   revalidateTag("mensDraftTeamData");
   revalidateTag("womensDraftTeamData");
-  return data;
+  revalidatePath("/riders");
+  revalidatePath("/my-team");
+return data;
 }
 
 export const addRiderToTeam = async (
@@ -551,11 +566,10 @@ export const addRiderToTeam = async (
       riderId: rider.id,
     },
   });
-  if (team.type === false) {
     revalidateTag(`mensDraftTeamData_${user.id}`);
-  } else {
     revalidateTag(`womensDraftTeamData_${user.id}`);
-  }
+    revalidatePath("/riders");
+    revalidatePath("/my-team");
   return draftTeamRider;
 };
 
@@ -564,14 +578,14 @@ export const removeRiderFromTeam = async (
   team: DraftTeam,
   rider: Rider
 ): Promise<{ count: number }> => {
-  if (team.type === false) {
-    revalidateTag(`mensDraftTeamData_${user.id}`);
-  } else {
-    revalidateTag(`womensDraftTeamData_${user.id}`);
-  }
-  return await prisma.draftTeamRider.deleteMany({
+ const data = await prisma.draftTeamRider.deleteMany({
     where: { userId: user.id, teamId: team.id, riderId: rider.id },
   });
+  revalidateTag(`mensDraftTeamData_${user.id}`);
+  revalidateTag(`womensDraftTeamData_${user.id}`);
+  revalidatePath("/riders");
+  revalidatePath("/my-team");
+  return data;
 };
 
 const resultsWithRace = Prisma.validator<Prisma.RaceResultDefaultArgs>()({

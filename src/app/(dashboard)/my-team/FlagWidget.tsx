@@ -6,8 +6,8 @@ import { useEffect, useState } from "react";
 import { DraftTeam } from "@prisma/client";
 
 interface FlagsWidgetProps {
-    mensTeamData: DraftTeam;
-    womensTeamData: DraftTeam;
+    mensTeamData?: DraftTeam;
+    womensTeamData?: DraftTeam;
 }
 
 export default function FlagsWidget({mensTeamData, womensTeamData}: FlagsWidgetProps) {

@@ -116,25 +116,24 @@ export default function RiderTable({
 
   useEffect(() => {
     const fetchData = async () => {
-      if (mensDraftTeamData && womensDraftTeamData) {
-        let draftTeam: DraftTeamWithRiders = mensDraftTeamData;
-        if (isWomen) {
-          draftTeam = womensDraftTeamData;
-        }
-        setTeam(draftTeam);
-        if (draftTeam) {
-          let riders = draftTeam.draftTeamRiders.map(
-            (draftTeamRider) => draftTeamRider.rider
-          );
-          setRows(riders);
-        }
+      let draftTeam: DraftTeamWithRiders | undefined = mensDraftTeamData;
+      if (mensDraftTeamData && !isWomen) {
+        setTeam(mensDraftTeamData);
+        draftTeam = mensDraftTeamData;
+      } else if (womensDraftTeamData && isWomen) {
+        draftTeam = womensDraftTeamData;
+        setTeam(womensDraftTeamData);
       }
-      if (mensRiders && womensRiders) {
-        let riders = mensRiders;
-        if (isWomen) {
-          riders = womensRiders;
-        }
+      if (draftTeam) {
+        let riders = draftTeam.draftTeamRiders.map(
+          (draftTeamRider) => draftTeamRider.rider
+        );
         setRows(riders);
+      }
+      if (mensRiders && !isWomen) {
+        setRows(mensRiders);
+      } else if (womensRiders && isWomen) {
+        setRows(womensRiders);
       }
     };
     fetchData();

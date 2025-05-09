@@ -7,6 +7,7 @@ import { getMensDraftTeams, getWomensDraftTeams, getCalendarData, getCachedRecen
 import CalendarTable from "../components/CalendarTable";
 import { addDays } from "date-fns";
 import RiderTable from "../components/RiderTable";
+import { useEffect } from "react";
 
 export default async function HomePage() {
   const mensTeamsPromise =  getMensDraftTeams();
