@@ -134,7 +134,8 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
               >
                 {props.children}
               </NextAppProvider>
-            </AppRouterCacheProvider>
+              <Analytics />
+              </AppRouterCacheProvider>
           </SessionProvider>
         </ContextProvider>
       </body>
