@@ -14,15 +14,15 @@ export const providers: Provider[] = [
     clientId: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   }),
-  Facebook({
-    clientId: process.env.FACEBOOK_CLIENT_ID,
-    clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-  }),
-  apple({
-    clientId: process.env.APPLE_CLIENT_ID,
-    clientSecret: process.env.APPLE_CLIENT_SECRET,
-  }),
-  Keycloak({}),
+  // Facebook({
+  //   clientId: process.env.FACEBOOK_CLIENT_ID,
+  //   clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+  // }),
+  // apple({
+  //   clientId: process.env.APPLE_CLIENT_ID,
+  //   clientSecret: process.env.APPLE_CLIENT_SECRET,
+  // }),
+  // Keycloak({}),
 ];
 
 export const providerMap = providers.map((provider) => {
