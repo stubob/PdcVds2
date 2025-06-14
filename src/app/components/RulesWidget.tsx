@@ -1,11 +1,14 @@
 import { Check, Error } from "@mui/icons-material";
 import {
+  Alert,
   Button,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Snackbar,
+  SnackbarCloseReason,
   Typography,
 } from "@mui/material";
 import { Stack } from "@mui/system";
@@ -62,9 +65,30 @@ export default function RulesWidget({ isWomen, team }: RulesWidgetProps) {
     if (confirmed && session?.user?.id) {
       // Add logic to submit a team
       lockDraftTeam(session.user.id, team);
+      setMessage("Team Submitted");
+      setOpen(true);
     }
   };
 
+    const [open, setOpen] = useState(false);
+    const [message, setMessage] = useState<string>('');
+    
+      const handleClose = (
+        event?: React.SyntheticEvent | Event,
+        reason?: SnackbarCloseReason,
+      ) => {
+        if (reason === 'clickaway') {
+          return;
+        }
+    
+        setOpen(false);
+      };
+    const autosizeOptions = {
+      includeHeaders: true,
+      includeOutliers: true,
+      expand: true,
+    };
+    
   return (
     <Stack spacing={2}>
       <Typography variant="h6">Total Price: {totalPrice}</Typography>
@@ -101,9 +125,21 @@ export default function RulesWidget({ isWomen, team }: RulesWidgetProps) {
         </ListItem>
       </List>
       {!team.locked ? (
+        <main>
         <Button variant="contained" color="primary" disabled={!checkValid} onClick={handleSubmitTeam}>
           Save Team
         </Button>
+                <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+              <Alert
+                onClose={handleClose}
+                severity="success"
+                variant="filled"
+                sx={{ width: '100%' }}
+              >
+                User updated
+              </Alert>
+            </Snackbar>
+            </main>
       ) : (
         <></>
       )}

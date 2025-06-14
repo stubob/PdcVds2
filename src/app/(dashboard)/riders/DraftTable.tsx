@@ -7,12 +7,15 @@ import {
   GridRowSelectionModel,
 } from "@mui/x-data-grid";
 import {
+  Alert,
   Button,
   Link,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
+  Snackbar,
+  SnackbarCloseReason,
   Stack,
   TextField,
   Typography,
@@ -89,7 +92,8 @@ export default function DraftTable({ mensDraftTeamData, mensRiderData, womensDra
     // Add logic to create a team
     createDraftTeam(session.user, teamName, isWomen);
     setTeam({ name: teamName, draftTeamRiders: [], userId: session.user.id, type: isWomen, id: 0, locked: false, score2025: 0, year: '2025' });
-
+    setMessage('Team Created');
+    setOpen(true);
   };
 
   const handleSelectionModelChange = async (newSelectionModel: GridRowSelectionModel) => {
@@ -150,6 +154,19 @@ export default function DraftTable({ mensDraftTeamData, mensRiderData, womensDra
     setSelectionModel(newSelectionModel);
   };
 
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState<string>('');
+  
+    const handleClose = (
+      event?: React.SyntheticEvent | Event,
+      reason?: SnackbarCloseReason,
+    ) => {
+      if (reason === 'clickaway') {
+        return;
+      }
+  
+      setOpen(false);
+    };
   const autosizeOptions = {
     includeHeaders: true,
     includeOutliers: true,
@@ -231,6 +248,17 @@ export default function DraftTable({ mensDraftTeamData, mensRiderData, womensDra
         </Grid>
         {session ? (
           <Stack spacing={2}>
+                <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+              <Alert
+                onClose={handleClose}
+                severity="success"
+                variant="filled"
+                sx={{ width: '100%' }}
+              >
+                User updated
+              </Alert>
+            </Snackbar>
+            
             {team ? (
               <>
                 <TextField

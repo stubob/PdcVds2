@@ -1,5 +1,5 @@
 "use client";
-import { Button, Stack, TextField } from "@mui/material";
+import { Alert, Button, Snackbar, SnackbarCloseReason, Stack, TextField } from "@mui/material";
 import { useState } from "react";
 import { createRaces } from "../../../prisma-queries";
 import { useSessionContext } from "../../../contextprovider";
@@ -10,6 +10,19 @@ export default function UploadPage() {
     const { isWomen } = useSessionContext();
     const router = useRouter(); // Use the useRouter hook
 
+      const [open, setOpen] = useState(false);
+    
+      const handleClose = (
+        event?: React.SyntheticEvent | Event,
+        reason?: SnackbarCloseReason,
+      ) => {
+        if (reason === 'clickaway') {
+          return;
+        }
+    
+        setOpen(false);
+      };
+    
     const handleUpload = async () => {
         // Step 1: Parse CSV data into an array of race objects
         const races = csvData.split("\n").map((row) => {
@@ -32,6 +45,7 @@ export default function UploadPage() {
           // await fetchCalendarData();
           console.log("Races successfully uploaded and rows updated:", newRacesResult);
           router.push("/admin/admin-calendar"); // Use router.push
+          setOpen(true);
         } catch (error) {
           console.error("Error uploading races:", error);
         }
@@ -49,6 +63,16 @@ export default function UploadPage() {
       <Button variant="contained" color="primary" onClick={handleUpload}>
         Upload
       </Button>
+    <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+  <Alert
+    onClose={handleClose}
+    severity="success"
+    variant="filled"
+    sx={{ width: '100%' }}
+  >
+    Calendar Updated
+  </Alert>
+</Snackbar>
         </Stack>
     );
 }

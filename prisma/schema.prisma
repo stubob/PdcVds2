@@ -23,6 +23,7 @@ model Rider {
   age       Int
   price2025 Int     @map("price_2025")
   score2025 Int     @map("score_2025")
+  price2024 Int     @map("price_2024") @default(0)
   score2024 Int     @map("score_2024")
   type      Boolean
   results  RaceResult[]

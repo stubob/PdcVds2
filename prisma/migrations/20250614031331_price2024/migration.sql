@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "rider" ADD COLUMN     "price_2024" INTEGER NOT NULL DEFAULT 0;

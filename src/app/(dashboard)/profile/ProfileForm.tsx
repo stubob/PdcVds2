@@ -10,6 +10,9 @@ import {
   CardActions,
   Card,
   Stack,
+  Alert,
+  Snackbar,
+  SnackbarCloseReason,
 } from "@mui/material";
 
 export default function ProfileForm({
@@ -23,10 +26,12 @@ export default function ProfileForm({
   const saveUser = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     await updateUser(user);
+    setOpen(true);
   };
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUser({ ...user, name: event.target.value });
+    setOpen(true);
   };
 
   useEffect(() => {
@@ -35,7 +40,20 @@ export default function ProfileForm({
     }
   }, [name, email]);
 
+  const [open, setOpen] = useState(false);
+
+  const handleClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason,
+  ) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
   return (
+    <main>
     <Card variant="outlined">
       <CardContent>
         <Stack direction={"column"} spacing={2}>
@@ -55,5 +73,16 @@ export default function ProfileForm({
         </Button>
       </CardActions>
     </Card>
+    <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+  <Alert
+    onClose={handleClose}
+    severity="success"
+    variant="filled"
+    sx={{ width: '100%' }}
+  >
+    User updated
+  </Alert>
+</Snackbar>
+    </main>
   );
 }

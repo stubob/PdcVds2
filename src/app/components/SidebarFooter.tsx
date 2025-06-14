@@ -23,7 +23,7 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({ mini }) => {
   );
 
   useEffect(() => {
-    const targetDate = new Date(`${currentYear}-06-01T00:00:00`);
+    const targetDate = new Date(`${currentYear}-07-04T00:00:00`);
     const updateCountdown = () => {
       const now = new Date();
       const difference = targetDate.getTime() - now.getTime();
@@ -48,8 +48,8 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({ mini }) => {
 
   return (
     <Stack direction="column" spacing={1} sx={{ alignItems: "center" }}>
-      <Typography variant="caption" sx={{ m: 1 }}>Ad Block</Typography>
-      <Typography variant="caption" sx={{ m: 1 }}>Deadline: 2025-06-01</Typography>
+      {/* <Typography variant="caption" sx={{ m: 1 }}>Ad Block</Typography> */}
+      <Typography variant="caption" sx={{ m: 1 }}>Deadline: 2025-07-04</Typography>
       <Typography variant="caption" sx={{ m: 1 }}>Time remaining: {timeRemaining}</Typography>
 
       <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
@@ -63,7 +63,7 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({ mini }) => {
       >
         {mini
           ? "© MUI"
-          : `© ${currentYear} Made with love by MUI`}
+          : `© ${currentYear} Built with MUI`}
       </Typography>
     </Stack>
   );
