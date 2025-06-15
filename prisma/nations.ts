@@ -1,0 +1,15 @@
+update rider set nation = 'NLD' where nation = 'NED';
+update rider set nation = 'DNK' where nation = 'DEN';
+update rider set nation = 'CHE' where nation = 'SUI';
+update rider set nation = 'PRT' where nation = 'POR';
+update rider set nation = 'DEU' where nation = 'GER';
+update rider set nation = 'LVA' where nation = 'LAT';
+update rider set nation = 'URY' where nation = 'URU';
+update rider set nation = 'MCO' where nation = 'MON';
+update rider set nation = 'TWN' where nation = 'TPE';
+update rider set nation = 'ZAF' where nation = 'RSA';
+update rider set nation = 'PRI' where nation = 'PUR';
+update rider set nation = 'ARE' where nation = 'UAE';
+update rider set nation = 'DZA' where nation = 'ALG';
+update rider set nation = 'CHL' where nation = 'CHI';
+update rider set nation = 'MNG' where nation = 'MGL';

@@ -236,7 +236,7 @@ export default function DraftTable({ mensDraftTeamData, mensRiderData, womensDra
             }}
             rowHeight={25}
             keepNonExistentRowsSelected
-            pageSizeOptions={[10]}
+            pageSizeOptions={[10,50,100]}
             checkboxSelection={!!session?.id} // Enable checkboxSelection if session.id exists
             disableRowSelectionOnClick
             onRowSelectionModelChange={handleSelectionModelChange}

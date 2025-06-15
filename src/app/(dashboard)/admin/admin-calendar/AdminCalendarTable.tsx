@@ -210,7 +210,7 @@ export default function AdminCalendarTable({calendarData}: AdminCalendarTablePro
         editMode="row"
         rowHeight={30}
         keepNonExistentRowsSelected
-        pageSizeOptions={[10]}
+        pageSizeOptions={[10,50,100]}
         disableColumnSelector={true}
         autosizeOnMount={true}
         autosizeOptions={autosizeOptions}

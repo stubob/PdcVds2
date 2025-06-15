@@ -154,6 +154,7 @@ export default function RiderTable({
   return (
     <main>
       <DataGrid
+        pageSizeOptions={[10,50,100]}
         rows={rows}
         columns={columns}
         disableRowSelectionOnClick

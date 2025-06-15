@@ -46,7 +46,7 @@ return (
         rows={data}
         columns={columns}
         rowHeight={25}
-        pageSizeOptions={[10]}
+        pageSizeOptions={[10,50,100]}
         disableRowSelectionOnClick
         disableColumnSelector={true}
         autosizeOnMount={true}

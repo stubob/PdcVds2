@@ -72,3 +72,4 @@ npx prisma migrate dev --name
 npx prisma generate
 npx prisma db seed
 
+npx prisma db execute --file .\prisma\nations.ts --schema .\prisma\schema.prisma
