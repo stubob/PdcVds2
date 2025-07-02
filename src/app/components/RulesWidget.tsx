@@ -31,33 +31,40 @@ export default function RulesWidget({ isWomen, team }: RulesWidgetProps) {
     const [doubleRestricted, setDoubleRestricted] = useState<boolean>(false);
     const [checkValid, setCheckValid] = useState<boolean>(false);
   
-  useEffect(() => {
-    setTotalPrice(team.draftTeamRiders.reduce(
-        (total: number, rider: Rider) => total + rider.price2025,
-        0
-      ));
-    if (isWomen) {
-      setNumRiders(team.draftTeamRiders.length != 15);
-      setTotal(totalPrice > 150);
-      setDoubleRestricted(
-        team.draftTeamRiders.filter((rider: Rider) => rider.price2025 >= 24).length > 1
+    useEffect(() => {
+      setTotalPrice(
+        team.draftTeamRiders.reduce(
+          (total: number, rider: Rider) => total + rider.price2025,
+          0
+        )
       );
-      setRestricted(
-        team.draftTeamRiders.filter((rider: Rider) => rider.price2025 >= 18).length > 3
-      );
-    } else {
-      setNumRiders(team.draftTeamRiders.length != 25);
-      setTotal(totalPrice > 150);
-      setDoubleRestricted(
-        team.draftTeamRiders.filter((rider: Rider) => rider.price2025 >= 24).length > 1
-      );
-      setRestricted(
-        team.draftTeamRiders.filter((rider: Rider) => rider.price2025 >= 18).length > 3
-      );
-      setCheckValid(numRiders && total && restricted && doubleRestricted);
-    }
-  }, [team, isWomen, totalPrice, numRiders, total, restricted, doubleRestricted]);
-
+    
+      if (isWomen) {
+        setNumRiders(team.draftTeamRiders.length !== 15);
+        setTotal(totalPrice > 150);
+        setDoubleRestricted(
+          team.draftTeamRiders.filter((rider: Rider) => rider.price2025 >= 24).length > 1
+        );
+        setRestricted(
+          team.draftTeamRiders.filter((rider: Rider) => rider.price2025 >= 18).length > 3
+        );
+      } else {
+        setNumRiders(team.draftTeamRiders.length !== 25);
+        setTotal(totalPrice > 150);
+        setDoubleRestricted(
+          team.draftTeamRiders.filter((rider: Rider) => rider.price2025 >= 24).length > 1
+        );
+        setRestricted(
+          team.draftTeamRiders.filter((rider: Rider) => rider.price2025 >= 18).length > 3
+        );
+      }
+    }, [team, isWomen, totalPrice]);
+    
+    useEffect(() => {
+      // Calculate checkValid after all dependent states are updated
+      setCheckValid(!numRiders && !total && !restricted && !doubleRestricted);
+    }, [numRiders, total, restricted, doubleRestricted]);
+    
   const handleSubmitTeam = async () => {
     const confirmed = window.confirm(
       "Are you sure? You will not be able to change your team after submitting."
