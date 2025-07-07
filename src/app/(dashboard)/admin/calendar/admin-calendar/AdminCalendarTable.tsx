@@ -14,9 +14,9 @@ import { useEffect, useState } from "react";
 import { countries, findFlagUrlByCountryName } from "country-flags-svg";
 import Image from "next/image";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import { useSessionContext } from "../../../contextprovider";
-import CalendarCell from "../../../components/CalenderCell";
-import { deleteRace, updateRace } from "../../../prisma-queries";
+import { useSessionContext } from "../../../../contextprovider";
+import CalendarCell from "../../../../components/CalenderCell";
+import { deleteRace, updateRace } from "../../../../prisma-queries";
 import { Race } from "@prisma/client";
 import { Cancel, Edit, Save } from "@mui/icons-material";
 
@@ -137,7 +137,7 @@ export default function AdminCalendarTable({calendarData}: AdminCalendarTablePro
       headerName: "Results",
       editable: false,
       renderCell: (params) => (
-        <CalendarCell {...params} urlBase={"/admin/admin-calendar"} />
+        <CalendarCell {...params} urlBase={"/admin/calendar/admin-calendar"} />
       ),
       sortable: false,
       filterable: false,

@@ -1,5 +1,5 @@
 import AdminRiderTable from "./AdminRiderTable";
-import { getMensRiders, getWomensRiders } from "../../../datalayer";
+import { getMensRiders, getWomensRiders } from "../../../../datalayer";
 
 export default async function RiderAdminPage() {
   const mensRiderDataPromise = getMensRiders();

@@ -2,8 +2,8 @@
 
 import { Alert, Button, Snackbar, SnackbarCloseReason, Stack, TextField } from "@mui/material"
 import { useState } from "react";
-import { useSessionContext } from "../../../contextprovider";
-import { createRiders } from "../../../prisma-queries";
+import { useSessionContext } from "../../../../contextprovider";
+import { createRiders } from "../../../../prisma-queries";
 import { Prisma, Rider } from "@prisma/client";
 import { useRouter } from "next/navigation";
 
@@ -45,7 +45,7 @@ export default function UploadPage() {
           });
         createRiders(riders);
         setOpen(true);
-        router.push("/admin/admin-riders"); // Use router.push
+        router.push("/admin/riders/admin-riders"); // Use router.push
     };
     return (
         <Stack spacing={2} direction="column" justifyContent="space-between">

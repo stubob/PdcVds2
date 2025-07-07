@@ -9,7 +9,7 @@ export default async function RidersPage() {
 
     const headerList = await headers();
     const pathname = headerList.get("x-current-path") ?? '';
-    const id = parseInt(pathname[pathname.length - 1], 10); // Get the last part of the pathname and convert to number
+    const id = parseInt(pathname.split('/').pop() as string, 10); // Get the last part of the pathname and convert to number
     const data = await getRiderById(id);
 
     return (

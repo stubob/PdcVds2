@@ -79,10 +79,10 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
   if (session?.admin) {
     NAVIGATION.push({
       title: "Admin",
-      kind: "header",
-    },
+      segment: "admin",
+      children: [
         {
-          segment: "admin",
+          segment: "calendar",
           title: "Calendar",
           children: [
             {
@@ -98,7 +98,7 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
             },
           ],
         },
-        {
+                {
           segment: "admin",
           title: "Riders",
           children: [
@@ -114,6 +114,9 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
             },
           ],
         },
+
+      ]
+    },
       );
   }
 

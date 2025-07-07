@@ -16,7 +16,7 @@ import {
   updateDraftScores,
   updateRaceResult,
   updateRiderScore,
-} from "../../../../prisma-queries";
+} from "../../../../../prisma-queries";
 import RiderSelect from "./RiderSelect";
 
 interface RaceResultProps {

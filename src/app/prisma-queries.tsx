@@ -122,7 +122,7 @@ export async function createRaces(races: Prisma.RaceCreateManyInput[]) {
     data: races,
     skipDuplicates: true,
   });
-  revalidatePath("/admin/admin-calendar");
+  revalidatePath("/admin/calendar/admin-calendar");
   revalidateTag("calendarData");
   return data;
 }
@@ -160,7 +160,7 @@ export async function createRiders(riders: Prisma.RiderCreateManyInput[]) {
     data: riders,
     skipDuplicates: true,
   });
-  revalidatePath("/admin/admin-riders");
+  revalidatePath("/admin/riders/admin-riders");
   revalidateTag("mensRiders");
   revalidateTag("womensRiders");
 

@@ -8,7 +8,7 @@ import RiderTable from "../../../components/RiderTable";
 export default async function ResultsPage() {
   const headerList = await headers();
   const pathname = headerList.get("x-current-path") ?? '';
-  const id = parseInt(pathname[pathname.length - 1], 10); // Get the last part of the pathname and convert to number
+    const id = parseInt(pathname.split('/').pop() as string, 10); // Get the last part of the pathname and convert to number
   const team = await getDraftTeamById(Number(id));
   const riders = await getAllRiders();
 

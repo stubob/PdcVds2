@@ -13,8 +13,8 @@ import {
 } from "@mui/x-data-grid";
 import { countries, findFlagUrlByIso3Code } from "country-flags-svg";
 import Image from "next/image";
-import { useSessionContext } from "../../../contextprovider";
-import { deleteRider, updateRider } from "../../../prisma-queries";
+import { useSessionContext } from "../../../../contextprovider";
+import { deleteRider, updateRider } from "../../../../prisma-queries";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
 import { Rider } from "@prisma/client";

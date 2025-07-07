@@ -8,7 +8,7 @@ import { getRaceById, getRaceResultById } from "../../../datalayer";
 export default async function ResultsPage() {
   const headerList = await headers();
   const pathname = headerList.get("x-current-path") ?? '';
-  const id = parseInt(pathname[pathname.length - 1], 10); // Get the last part of the pathname and convert to number
+    const id = parseInt(pathname.split('/').pop() as string, 10); // Get the last part of the pathname and convert to number
   const data = await getRaceResultById(Number(id));
   const metadata = await getRaceById(Number(id));
 

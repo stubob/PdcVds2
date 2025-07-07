@@ -1,8 +1,8 @@
 "use client";
 import { Alert, Button, Snackbar, SnackbarCloseReason, Stack, TextField } from "@mui/material";
 import { useState } from "react";
-import { createRaces } from "../../../prisma-queries";
-import { useSessionContext } from "../../../contextprovider";
+import { createRaces } from "../../../../prisma-queries";
+import { useSessionContext } from "../../../../contextprovider";
 import { useRouter } from "next/navigation";
 
 export default function UploadPage() {
@@ -44,7 +44,7 @@ export default function UploadPage() {
           // Step 3: Update rows using apiRef.current.updateRows
           // await fetchCalendarData();
           console.log("Races successfully uploaded and rows updated:", newRacesResult);
-          router.push("/admin/admin-calendar"); // Use router.push
+          router.push("/admin/calendar/admin-calendar"); // Use router.push
           setOpen(true);
         } catch (error) {
           console.error("Error uploading races:", error);

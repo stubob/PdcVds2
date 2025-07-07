@@ -1,6 +1,6 @@
 import { Stack } from "@mui/material";
 import AdminCalendarTable from "./AdminCalendarTable";
-import { getCalendarData } from "../../../datalayer";
+import { getCalendarData } from "../../../../datalayer";
 
 export default async function CalendarAdminPage() {
   const calendarData = await getCalendarData();
