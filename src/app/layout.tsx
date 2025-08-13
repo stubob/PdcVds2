@@ -98,8 +98,8 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
             },
           ],
         },
-                {
-          segment: "admin",
+        {
+          segment: "riders",
           title: "Riders",
           children: [
             {

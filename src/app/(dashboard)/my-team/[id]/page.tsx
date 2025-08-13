@@ -10,7 +10,7 @@ export default async function ResultsPage() {
   const pathname = headerList.get("x-current-path") ?? '';
     const id = parseInt(pathname.split('/').pop() as string, 10); // Get the last part of the pathname and convert to number
   const team = await getDraftTeamById(Number(id));
-  const riders = await getAllRiders();
+  //const riders = await getAllRiders();
 
   return (
     <main>
@@ -29,7 +29,7 @@ export default async function ResultsPage() {
           ) : null;
         })}
         </Stack>
-        <RiderTable mensDraftTeamData={team} womensDraftTeamData={team} mensRiders={riders} womensRiders={riders} />
+        <RiderTable mensDraftTeamData={team} womensDraftTeamData={team} />
       </Stack>
     </main>
   );

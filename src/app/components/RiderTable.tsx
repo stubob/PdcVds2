@@ -154,6 +154,11 @@ export default function RiderTable({
   return (
     <main>
       <DataGrid
+        initialState={{
+          sorting: {
+            sortModel: [{ field: 'score2025', sort: 'desc' }],
+          },
+        }}
         pageSizeOptions={[10,50,100]}
         rows={rows}
         columns={columns}

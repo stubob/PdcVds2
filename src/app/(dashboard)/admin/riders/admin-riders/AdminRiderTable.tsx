@@ -103,6 +103,12 @@ export default function RiderPage({
       editable: true,
     },
     {
+      field: "score2025",
+      headerName: "Score",
+      type: "number",
+      editable: false,
+    },
+    {
       field: "score2024",
       headerName: "Score 2024",
       type: "number",
@@ -176,6 +182,9 @@ export default function RiderPage({
               paginationModel: {
                 pageSize: 10,
               },
+            },
+            sorting: {
+              sortModel: [{ field: 'price2025', sort: 'desc' }],
             },
           }}
           rowHeight={25}

@@ -22,7 +22,7 @@ export const providers: Provider[] = [
   //   clientId: process.env.APPLE_CLIENT_ID,
   //   clientSecret: process.env.APPLE_CLIENT_SECRET,
   // }),
-  //Keycloak({}),
+  Keycloak({}),
 ];
 
 export const providerMap = providers.map((provider) => {

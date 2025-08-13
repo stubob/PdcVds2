@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, useGridApiRef } from "@mui/x-data-grid";
 import { Race, RaceResult, Rider } from "@prisma/client";
 import {
   Button,
@@ -36,6 +36,7 @@ export default function RaceResultTable({
   const [rows, setRows] = useState<TemplateType[]>([]);
   const [isSaveEnabled, setIsSaveEnabled] = useState(false);
   const [editable, setEditable] = useState(true);
+  const apiRef = useGridApiRef();
 
   const handleRiderChange = (sequence: number, selectedRider: Rider) => {
     setRows((prevRows) =>
@@ -47,6 +48,10 @@ export default function RaceResultTable({
         return row;
       })
     );
+      apiRef.current?.autosizeColumns({
+      includeHeaders: true,
+      includeOutliers: true,
+    });
   };
 
   useEffect(() => {
